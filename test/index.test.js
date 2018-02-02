@@ -17,15 +17,10 @@ describe( 'whatodo', () => {
     const Whatodo = require( '../index' );
     const todos = new Whatodo();
     
-    const start = process.hrtime();
-    
     todos
         .initialize()
         .then( inst => inst.run() )
-        .then( d => {
-            const end = process.hrtime( start );
-            console.log( JSON.stringify( d, null, 4 ) );
-            console.log( `Executed in: ${( end[ 0 ] + end[ 1 ] ) / 1e3} μs` );
-        } )
+        .then( inst => inst.save( './TODOS.json' ) )
+        .then( console.log )
         .catch( console.error );
 } );

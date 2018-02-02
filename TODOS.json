@@ -1,0 +1,80 @@
+[
+    {
+        "fname": "/Users/trashcan/GitHub/whatodo/README.md",
+        "isDirectory": false,
+        "size": 155,
+        "todos": [
+            {
+                "priority": "LOW",
+                "line": 4,
+                "position": 0,
+                "comment": "low priority"
+            },
+            {
+                "priority": "MID",
+                "line": 5,
+                "position": 0,
+                "comment": "mid priority"
+            },
+            {
+                "priority": "HIGH",
+                "line": 6,
+                "position": 0,
+                "comment": "high priority"
+            },
+            {
+                "priority": "LOW",
+                "line": 8,
+                "position": 8,
+                "comment": "task to do"
+            }
+        ],
+        "timing": "156.803 μs"
+    },
+    {
+        "fname": "/Users/trashcan/GitHub/whatodo/index.js",
+        "isDirectory": false,
+        "size": 3762,
+        "todos": [
+            {
+                "priority": "HIGH",
+                "line": 13,
+                "position": 0,
+                "comment": "make CLI input"
+            },
+            {
+                "priority": "MID",
+                "line": 14,
+                "position": 0,
+                "comment": "write docs, installation, usage, etc"
+            },
+            {
+                "priority": "LOW",
+                "line": 15,
+                "position": 0,
+                "comment": "note syntax and priority specification for different priority levels"
+            },
+            {
+                "priority": "UNKNOWN",
+                "line": 16,
+                "position": 0,
+                "comment": "write more tests"
+            }
+        ],
+        "timing": "1.436793 ms"
+    },
+    {
+        "fname": "/Users/trashcan/GitHub/whatodo/todo.cc",
+        "isDirectory": false,
+        "size": 3039,
+        "todos": [
+            {
+                "priority": "LOW",
+                "line": 11,
+                "position": 0,
+                "comment": "allow regex override"
+            }
+        ],
+        "timing": "1.36895 ms"
+    }
+]

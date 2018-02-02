@@ -6,10 +6,14 @@
 'use strict';
 
 const
-    { readdir, stat } = require( 'fs' ),
-    { resolve, join } = require( 'path' ),
-    todo              = require( 'bindings' )( 'todo' );
+    { readdir, stat, writeFile } = require( 'fs' ),
+    { resolve, join }            = require( 'path' ),
+    todo                         = require( 'bindings' )( 'todo' );
 
+// TODO::: make CLI input
+// TODO:: write docs, installation, usage, etc
+// TODO: note syntax and priority specification for different priority levels
+// TODO write more tests
 class Whatodo
 {
     constructor( opts )
@@ -36,12 +40,37 @@ class Whatodo
             throw new Error( 'Argument Error - must initialize Whatodo first' );
         }
         
-        return this.files.filter(
+        this.todos = this.files.filter(
             item => {
-                item.todos = this.searchFile( item.fname );
-                console.log( `Executed in: ${item.todos.time / 1e3} μs` );
+                item.todos  = this.searchFile( item.fname );
+                item.timing = item.todos.time;
+                
+                if( item.timing < 1000 ) {
+                    item.timing = `${item.todos.time} ns`;
+                } else if( item.timing < 1000000 ) {
+                    item.timing = `${item.todos.time / 1e3} μs`;
+                } else if( item.timing < 1000000000 ) {
+                    item.timing = `${item.todos.time / 1e6} ms`;
+                } else if( item.timing < 1000000000000 ) {
+                    item.timing = `${item.todos.time / 1e9} s`;
+                }
+                
                 return item.todos.length ? item : false;
             }
+        );
+        
+        return this;
+    }
+    
+    save( fn )
+    {
+        fn = resolve( fn );
+        return new Promise(
+            ( res, rej ) => writeFile(
+                fn,
+                JSON.stringify( this.todos, null, 4 ),
+                e => e ? rej( e ) : res( `${fn} SAVED` )
+            )
         );
     }
     
@@ -74,9 +103,10 @@ class Whatodo
                         fn = join( dir, fn );
                         
                         return this.fstats( fn )
-                            .then( info => info.isDirectory ?
-                                this.readDirectory( info.fname, files ) :
-                                files.push( info )
+                            .then(
+                                info => info.isDirectory ?
+                                    this.readDirectory( info.fname, files ) :
+                                    files.push( info )
                             )
                             .catch( rej );
                     } )

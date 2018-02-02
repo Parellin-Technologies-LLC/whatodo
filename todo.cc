@@ -3,79 +3,87 @@
 #include <fstream>
 #include <regex>
 #include <string>
-
 #include <chrono>
 
 using namespace std;
 
 // TODO: allow regex override
-string SearchLine( string &line ) {
+Napi::Value SearchLine( Napi::Env &env, string &line, int &i ) {
     const std::regex rx( "\\/\\/ ?TODO:?:?:? ?" );
     const int llen = line.length();
 
-    std::sregex_iterator i = std::sregex_iterator( line.begin(), line.end(), rx );
-    string match;
+    std::sregex_iterator ri = std::sregex_iterator( line.begin(), line.end(), rx );
 
-    for( ; i != std::sregex_iterator(); ++i ) {
-        const std::smatch m = *i;
+    Napi::Object match;
+    bool matchFound;
+
+    for( ; ri != std::sregex_iterator(); ++ri ) {
+        const std::smatch m = *ri;
         const string ms     = m.str();
-        const int pos       = m.position() + ms.length();
-        string priority;
+        const int len       = ms.length();
+        const int pos       = m.position() + len;
 
-        // TODO: move Napi::Object to this method
-        std::size_t found = ms.find( ":::" );
-        if( found != std::string::npos ) {
-            priority = "0";
-        } else {
-            std::size_t found = ms.find( "::" );
+        matchFound = m.empty();
+
+        if( !matchFound ) {
+            match = Napi::Object::New( env );
+
+            std::size_t found = ms.find( ":::" );
             if( found != std::string::npos ) {
-                priority = "1";
+                match.Set( "priority", "HIGH" );
             } else {
-                std::size_t found = ms.find( ":" );
+                std::size_t found = ms.find( "::" );
                 if( found != std::string::npos ) {
-                    priority = "2";
+                    match.Set( "priority", "MID" );
                 } else {
-                    priority = "3";
+                    std::size_t found = ms.find( ":" );
+                    if( found != std::string::npos ) {
+                        match.Set( "priority", "LOW" );
+                    } else {
+                        match.Set( "priority", "UNKNOWN" );
+                    }
                 }
             }
-        }
 
-        match = priority + line.substr( pos, llen - pos );
+            match.Set( "line", i );
+            match.Set( "position", m.position() );
+            match.Set( "comment", line.substr( pos, llen - pos ) );
+        }
     }
 
-    return match;
+    if( !matchFound ) {
+        return match;
+    } else {
+        return Napi::Value();
+    }
 }
 
 Napi::Value SearchFile( const Napi::CallbackInfo &args ) {
     Napi::Env env = args.Env();
+    std::string fname = args[ 0 ].As<Napi::String>();
 
-    // TODO:if file is specified, if folder is specified, else ./
     if( !args[ 0 ].IsString() ) {
         Napi::TypeError::New( env, "Argument Error - expected string" ).ThrowAsJavaScriptException();
         return env.Null();
     }
 
-    std::string fname = args[ 0 ].As<Napi::String>();
     Napi::Array todos = Napi::Array::New( env );
 
     auto begin = std::chrono::high_resolution_clock::now();
 
-    int n = 0;
     int i = 0;
+    int n = 0;
     string line;
     ifstream file( fname );
 
     if( file.is_open() ) {
         while( getline( file, line ) )
         {
-            ++n;
-            string comment = SearchLine( line );
+            ++i;
+            Napi::Value to = SearchLine( env, line, i );
 
-            if( !comment.empty() ) {
-                Napi::Object to = Napi::Object::New( env );
-                to.Set( "line", n );
-                to.Set( "comment", comment );
-                todos[ i++ ] = to;
+            if( !to.IsEmpty() ) {
+                todos[ n++ ] = to;
             }
         }
 
@@ -86,7 +94,8 @@ Napi::Value SearchFile( const Napi::CallbackInfo &args ) {
     }
 
     auto end = std::chrono::high_resolution_clock::now();
-    todos[ "time" ] = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin).count();
+
+    todos[ "time" ] = std::chrono::duration_cast<std::chrono::nanoseconds>( end - begin ).count();
 
     return todos;
 }
