@@ -5,6 +5,18 @@
  *******************************************************************************************************/
 'use strict';
 
-const todo = require( './build/Release/todo' );
+const
+    { join } = require( 'path' ),
+    todo     = require( 'bindings' )( 'todo' ),
+    start    = process.hrtime(),
+    todos    = todo.searchFile( join( process.cwd(), './README.md' ) ),
+    end      = process.hrtime( start );
 
-console.log( todo.pass_string() );
+
+/**
+ * searchFile
+ * currently, only exporting `searchFile` - in progress
+ */
+module.exports = todo.searchFile;
+
+console.log( `${todos}\nExecuted in: ${( end[ 0 ] + end[ 1 ] ) / 1e3} μs` );
