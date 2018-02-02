@@ -1,6 +1,6 @@
 {
     "name": "whatodo",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "A TODO collector, organizer, and task manager",
     "main": "index.js",
     "scripts": {
