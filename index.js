@@ -39,6 +39,7 @@ class Whatodo
         return this.files.filter(
             item => {
                 item.todos = this.searchFile( item.fname );
+                console.log( `Executed in: ${item.todos.time / 1e3} μs` );
                 return item.todos.length ? item : false;
             }
         );

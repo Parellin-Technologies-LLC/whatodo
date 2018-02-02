@@ -4,14 +4,9 @@
 #include <regex>
 #include <string>
 
-using namespace std;
+#include <chrono>
 
-enum PRIORITY {
-    UNKNOWN = 0,
-    HIGH    = 1,
-    MID     = 2,
-    LOW     = 3
-};
+using namespace std;
 
 // TODO: allow regex override
 string SearchLine( string &line ) {
@@ -25,13 +20,27 @@ string SearchLine( string &line ) {
         const std::smatch m = *i;
         const string ms     = m.str();
         const int pos       = m.position() + ms.length();
-        PRIORITY priority;
+        string priority;
 
+        // TODO: move Napi::Object to this method
         std::size_t found = ms.find( ":::" );
-        if( found != std::string::npos )
-            priority = HIGH;
+        if( found != std::string::npos ) {
+            priority = "0";
+        } else {
+            std::size_t found = ms.find( "::" );
+            if( found != std::string::npos ) {
+                priority = "1";
+            } else {
+                std::size_t found = ms.find( ":" );
+                if( found != std::string::npos ) {
+                    priority = "2";
+                } else {
+                    priority = "3";
+                }
+            }
+        }
 
-        match = line.substr( pos, llen - pos );
+        match = priority + line.substr( pos, llen - pos );
     }
 
     return match;
@@ -49,6 +58,8 @@ Napi::Value SearchFile( const Napi::CallbackInfo &args ) {
     std::string fname = args[ 0 ].As<Napi::String>();
     Napi::Array todos = Napi::Array::New( env );
 
+    auto begin = std::chrono::high_resolution_clock::now();
+
     int n = 0;
     int i = 0;
     string line;
@@ -64,7 +75,6 @@ Napi::Value SearchFile( const Napi::CallbackInfo &args ) {
                 Napi::Object to = Napi::Object::New( env );
                 to.Set( "line", n );
                 to.Set( "comment", comment );
-
                 todos[ i++ ] = to;
             }
         }
@@ -74,6 +84,9 @@ Napi::Value SearchFile( const Napi::CallbackInfo &args ) {
         Napi::TypeError::New( env, "Argument Error - unable to open file" ).ThrowAsJavaScriptException();
         return env.Null();
     }
+
+    auto end = std::chrono::high_resolution_clock::now();
+    todos[ "time" ] = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin).count();
 
     return todos;
 }
