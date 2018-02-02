@@ -1,6 +1,6 @@
 [
     {
-        "fname": "/Users/trashcan/GitHub/whatodo/README.md",
+        "fname": "/whatodo/README.md",
         "isDirectory": false,
         "size": 155,
         "todos": [
@@ -32,7 +32,7 @@
         "timing": "156.803 μs"
     },
     {
-        "fname": "/Users/trashcan/GitHub/whatodo/index.js",
+        "fname": "/whatodo/index.js",
         "isDirectory": false,
         "size": 3762,
         "todos": [
@@ -64,7 +64,7 @@
         "timing": "1.436793 ms"
     },
     {
-        "fname": "/Users/trashcan/GitHub/whatodo/todo.cc",
+        "fname": "/whatodo/todo.cc",
         "isDirectory": false,
         "size": 3039,
         "todos": [
