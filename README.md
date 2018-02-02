@@ -1,5 +1,6 @@
 # whatodo
-###[https://whatodo.io](https://whatodo.io) (coming soon)
+
+[https://whatodo.io](https://whatodo.io) (coming soon)
 
 A TODO collector, organizer, and task manager
 
