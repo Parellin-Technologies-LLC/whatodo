@@ -3,51 +3,70 @@
 #include <fstream>
 #include <regex>
 #include <string>
+
 using namespace std;
 
-
-// TODO: write TODOs with priority levels to html(?) or txt file
-// write file
-// ofstream myfile;
-// myfile.open ("example.txt");
-// myfile << "Writing this to a file.\n";
-// myfile.close();a
+enum PRIORITY {
+    UNKNOWN = 0,
+    HIGH    = 1,
+    MID     = 2,
+    LOW     = 3
+};
 
 // TODO: allow regex override
-string SearchLine( std::string &line ) {
-    const std::regex rx( "\\/\\/ ?TODO:?:?:?" );
+string SearchLine( string &line ) {
+    const std::regex rx( "\\/\\/ ?TODO:?:?:? ?" );
     const int llen = line.length();
 
     std::sregex_iterator i = std::sregex_iterator( line.begin(), line.end(), rx );
-    string todo_match;
+    string match;
 
     for( ; i != std::sregex_iterator(); ++i ) {
         const std::smatch m = *i;
-        const int pos = m.position();
-        todo_match = todo_match + line.substr( pos, llen - pos ) + '\n';
+        const string ms     = m.str();
+        const int pos       = m.position() + ms.length();
+        PRIORITY priority;
+
+        std::size_t found = ms.find( ":::" );
+        if( found != std::string::npos )
+            priority = HIGH;
+
+        match = line.substr( pos, llen - pos );
     }
 
-    return todo_match;
+    return match;
 }
 
 Napi::Value SearchFile( const Napi::CallbackInfo &args ) {
     Napi::Env env = args.Env();
 
-    // TODO: if file is specified, if folder is specified, else ./
+    // TODO:if file is specified, if folder is specified, else ./
     if( !args[ 0 ].IsString() ) {
         Napi::TypeError::New( env, "Argument Error - expected string" ).ThrowAsJavaScriptException();
         return env.Null();
     }
 
     std::string fname = args[ 0 ].As<Napi::String>();
-    string todos;
+    Napi::Array todos = Napi::Array::New( env );
+
+    int n = 0;
+    int i = 0;
     string line;
     ifstream file( fname );
 
-    if ( file.is_open() ) {
+    if( file.is_open() ) {
         while( getline( file, line ) )
         {
-            todos = todos + SearchLine( line );
+            ++n;
+            string comment = SearchLine( line );
+
+            if( !comment.empty() ) {
+                Napi::Object to = Napi::Object::New( env );
+                to.Set( "line", n );
+                to.Set( "comment", comment );
+
+                todos[ i++ ] = to;
+            }
         }
 
         file.close();
@@ -56,9 +75,7 @@ Napi::Value SearchFile( const Napi::CallbackInfo &args ) {
         return env.Null();
     }
 
-    Napi::String str = Napi::String::New( env, todos );
-
-    return str;
+    return todos;
 }
 
 Napi::Object Init( Napi::Env env, Napi::Object exports ) {
