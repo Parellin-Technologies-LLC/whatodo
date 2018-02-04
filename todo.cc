@@ -11,39 +11,30 @@ using namespace std;
 Napi::Value SearchLine( Napi::Env &env, string &line, int &i ) {
     const std::regex rx( "\\/\\/ ?TODO:?:?:? ?" );
     const int llen = line.length();
+    bool matchFound;
 
     std::sregex_iterator ri = std::sregex_iterator( line.begin(), line.end(), rx );
-
     Napi::Object match;
-    bool matchFound;
 
     for( ; ri != std::sregex_iterator(); ++ri ) {
         const std::smatch m = *ri;
         const string ms     = m.str();
-        const int len       = ms.length();
-        const int pos       = m.position() + len;
+
+        const int
+            len = ms.length(),
+            pos = m.position() + len;
 
         matchFound = m.empty();
 
         if( !matchFound ) {
             match = Napi::Object::New( env );
 
-            std::size_t found = ms.find( ":::" );
-            if( found != std::string::npos ) {
-                match.Set( "priority", "HIGH" );
-            } else {
-                std::size_t found = ms.find( "::" );
-                if( found != std::string::npos ) {
-                    match.Set( "priority", "MID" );
-                } else {
-                    std::size_t found = ms.find( ":" );
-                    if( found != std::string::npos ) {
-                        match.Set( "priority", "LOW" );
-                    } else {
-                        match.Set( "priority", "UNKNOWN" );
-                    }
-                }
-            }
+            match.Set( "priority",
+                ms.find( ":::" ) != std::string::npos ? "HIGH" :
+                    ms.find( "::" ) != std::string::npos ? "MID" :
+                        ms.find( ":" ) != std::string::npos ? "LOW" :
+                            "UNKNOWN"
+            );
 
             match.Set( "line", i );
             match.Set( "position", m.position() );
@@ -51,11 +42,7 @@ Napi::Value SearchLine( Napi::Env &env, string &line, int &i ) {
         }
     }
 
-    if( !matchFound ) {
-        return match;
-    } else {
-        return Napi::Value();
-    }
+    return !matchFound ? match : Napi::Value();
 }
 
 Napi::Value SearchFile( const Napi::CallbackInfo &args ) {
@@ -71,8 +58,8 @@ Napi::Value SearchFile( const Napi::CallbackInfo &args ) {
 
     auto begin = std::chrono::high_resolution_clock::now();
 
-    int i = 0;
-    int n = 0;
+    int i = 0,
+        n = 0;
     string line;
     ifstream file( fname );
 

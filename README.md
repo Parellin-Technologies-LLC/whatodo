@@ -1,3 +1,12 @@
+<p align="center">
+    <a href="#">
+        <img width="128px"
+             height="128px"
+             alt="xterrainlogo"
+             src="./todo.png" />
+    </a>
+</p>
+
 # whatodo
 
 [https://whatodo.io](https://whatodo.io) (coming soon)

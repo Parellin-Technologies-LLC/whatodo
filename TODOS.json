@@ -1,40 +1,48 @@
 [
     {
-        "fname": "/whatodo/README.md",
+        "fname": "/Users/codebuddha/GitHub/whatodo/README.md",
         "isDirectory": false,
-        "size": 155,
+        "size": 1245,
         "todos": [
             {
                 "priority": "LOW",
-                "line": 4,
-                "position": 0,
-                "comment": "low priority"
+                "line": 24,
+                "position": 3,
+                "comment": "low priority`"
             },
             {
                 "priority": "MID",
-                "line": 5,
-                "position": 0,
-                "comment": "mid priority"
+                "line": 25,
+                "position": 3,
+                "comment": "mid priority`"
             },
             {
                 "priority": "HIGH",
-                "line": 6,
-                "position": 0,
-                "comment": "high priority"
-            },
-            {
-                "priority": "LOW",
-                "line": 8,
-                "position": 8,
-                "comment": "task to do"
+                "line": 26,
+                "position": 3,
+                "comment": "high priority`"
             }
         ],
-        "timing": "156.803 μs"
+        "timing": "570.081 μs"
     },
     {
-        "fname": "/whatodo/index.js",
+        "fname": "/Users/codebuddha/GitHub/whatodo/config.json",
         "isDirectory": false,
-        "size": 3762,
+        "size": 79,
+        "todos": [
+            {
+                "priority": "LOW",
+                "line": 3,
+                "position": 15,
+                "comment": "\""
+            }
+        ],
+        "timing": "58.639 μs"
+    },
+    {
+        "fname": "/Users/codebuddha/GitHub/whatodo/index.js",
+        "isDirectory": false,
+        "size": 3529,
         "todos": [
             {
                 "priority": "HIGH",
@@ -61,20 +69,46 @@
                 "comment": "write more tests"
             }
         ],
-        "timing": "1.436793 ms"
+        "timing": "1.321131 ms"
     },
     {
-        "fname": "/whatodo/todo.cc",
+        "fname": "/Users/codebuddha/GitHub/whatodo/todo.cc",
         "isDirectory": false,
-        "size": 3039,
+        "size": 2617,
         "todos": [
             {
                 "priority": "LOW",
-                "line": 11,
+                "line": 10,
                 "position": 0,
                 "comment": "allow regex override"
             }
         ],
-        "timing": "1.36895 ms"
+        "timing": "1.16128 ms"
+    },
+    {
+        "fname": "/Users/codebuddha/GitHub/whatodo/docs/index.html",
+        "isDirectory": false,
+        "size": 2506,
+        "todos": [
+            {
+                "priority": "LOW",
+                "line": 53,
+                "position": 10,
+                "comment": "low priority</code></li>"
+            },
+            {
+                "priority": "MID",
+                "line": 54,
+                "position": 10,
+                "comment": "mid priority</code></li>"
+            },
+            {
+                "priority": "HIGH",
+                "line": 55,
+                "position": 10,
+                "comment": "high priority</code></li>"
+            }
+        ],
+        "timing": "1.243506 ms"
     }
 ]

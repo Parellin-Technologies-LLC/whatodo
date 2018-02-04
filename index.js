@@ -19,13 +19,13 @@ class Whatodo
     constructor( opts )
     {
         opts = opts || {};
-        
+
         this.dir        = opts.dir || process.cwd();
-        this.ignore     = opts.ignore || [ 'node_modules', '.git', '.idea' ];
+        this.ignore     = opts.ignore || [ 'node_modules', '.git', '.idea', '.json' ];
         this.ignoreRx   = new RegExp( `^${this.ignore.join( '$|^' )}$` );
         this.todoFormat = opts.todoFormat || '\\/\\/ ?TODO:?:?:?';
     }
-    
+
     initialize()
     {
         return this.readDirectory( this.dir )
@@ -33,35 +33,30 @@ class Whatodo
             .then( () => this )
             .catch( console.error );
     }
-    
+
     run()
     {
-        if( !this.files ) {
-            throw new Error( 'Argument Error - must initialize Whatodo first' );
+        if( !this.files || !this.files.length ) {
+            throw new Error( 'Argument Error - No files found (initialize Whatodo first)' );
         }
-        
+
         this.todos = this.files.filter(
             item => {
                 item.todos  = this.searchFile( item.fname );
                 item.timing = item.todos.time;
-                
-                if( item.timing < 1000 ) {
-                    item.timing = `${item.todos.time} ns`;
-                } else if( item.timing < 1000000 ) {
-                    item.timing = `${item.todos.time / 1e3} μs`;
-                } else if( item.timing < 1000000000 ) {
-                    item.timing = `${item.todos.time / 1e6} ms`;
-                } else if( item.timing < 1000000000000 ) {
-                    item.timing = `${item.todos.time / 1e9} s`;
-                }
-                
+
+                item.timing = item.timing < 1000 ? `${item.todos.time} ns` :
+                    item.timing < 1000000 ? `${item.todos.time / 1e3} μs` :
+                        item.timing < 1000000000 ? `${item.todos.time / 1e6} ms` :
+                            `${item.todos.time / 1e9} s`;
+
                 return item.todos.length ? item : false;
             }
         );
-        
+
         return this;
     }
-    
+
     save( fn )
     {
         fn = resolve( fn );
@@ -73,12 +68,12 @@ class Whatodo
             )
         );
     }
-    
+
     searchFile( file )
     {
         return todo.searchFile( file );
     }
-    
+
     fstats( fname )
     {
         return new Promise(
@@ -89,7 +84,7 @@ class Whatodo
             )
         );
     }
-    
+
     readDirectory( dir, files = [] )
     {
         return new Promise(
@@ -99,9 +94,9 @@ class Whatodo
                         if( fn.match( this.ignoreRx ) ) {
                             return;
                         }
-                        
+
                         fn = join( dir, fn );
-                        
+
                         return this.fstats( fn )
                             .then(
                                 info => info.isDirectory ?
