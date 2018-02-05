@@ -1,4 +1,4 @@
 {
     "ignore": [ "node_modules", ".git", ".idea" ],
-    "format": "// TODO:"
+    "format": ""
 }

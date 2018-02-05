@@ -10,7 +10,6 @@ using namespace std;
 // TODO: allow regex override
 Napi::Value SearchLine( Napi::Env &env, string &line, int &i ) {
     const std::regex rx( "\\/\\/ ?TODO:?:?:? ?" );
-    const int llen = line.length();
     bool matchFound;
 
     std::sregex_iterator ri = std::sregex_iterator( line.begin(), line.end(), rx );
@@ -18,15 +17,23 @@ Napi::Value SearchLine( Napi::Env &env, string &line, int &i ) {
 
     for( ; ri != std::sregex_iterator(); ++ri ) {
         const std::smatch m = *ri;
-        const string ms     = m.str();
-
-        const int
-            len = ms.length(),
-            pos = m.position() + len;
 
         matchFound = m.empty();
 
         if( !matchFound ) {
+            const string ms = m.str();
+            const int
+                llen        = line.length(),
+                len         = ms.length(),
+                pos         = m.position(),
+                cpos        = pos + len;
+
+            const string comment = line.substr( cpos, llen - cpos );
+
+            if( comment == "" ) {
+                break;
+            }
+
             match = Napi::Object::New( env );
 
             match.Set( "priority",
@@ -37,8 +44,8 @@ Napi::Value SearchLine( Napi::Env &env, string &line, int &i ) {
             );
 
             match.Set( "line", i );
-            match.Set( "position", m.position() );
-            match.Set( "comment", line.substr( pos, llen - pos ) );
+            match.Set( "position", pos );
+            match.Set( "comment", comment );
         }
     }
 

@@ -1,114 +1,28 @@
 [
     {
-        "fname": "/Users/codebuddha/GitHub/whatodo/README.md",
+        "fname": "/Users/trashcan/GitHub/whatodo/test/test.cc",
         "isDirectory": false,
-        "size": 1245,
+        "size": 69,
         "todos": [
             {
                 "priority": "LOW",
-                "line": 24,
-                "position": 3,
-                "comment": "low priority`"
+                "line": 1,
+                "position": 0,
+                "comment": "low priority"
             },
             {
                 "priority": "MID",
-                "line": 25,
-                "position": 3,
-                "comment": "mid priority`"
+                "line": 2,
+                "position": 0,
+                "comment": "mid priority"
             },
             {
                 "priority": "HIGH",
-                "line": 26,
-                "position": 3,
-                "comment": "high priority`"
-            }
-        ],
-        "timing": "570.081 μs"
-    },
-    {
-        "fname": "/Users/codebuddha/GitHub/whatodo/config.json",
-        "isDirectory": false,
-        "size": 79,
-        "todos": [
-            {
-                "priority": "LOW",
                 "line": 3,
-                "position": 15,
-                "comment": "\""
+                "position": 0,
+                "comment": "high priority"
             }
         ],
-        "timing": "58.639 μs"
-    },
-    {
-        "fname": "/Users/codebuddha/GitHub/whatodo/index.js",
-        "isDirectory": false,
-        "size": 3529,
-        "todos": [
-            {
-                "priority": "HIGH",
-                "line": 13,
-                "position": 0,
-                "comment": "make CLI input"
-            },
-            {
-                "priority": "MID",
-                "line": 14,
-                "position": 0,
-                "comment": "write docs, installation, usage, etc"
-            },
-            {
-                "priority": "LOW",
-                "line": 15,
-                "position": 0,
-                "comment": "note syntax and priority specification for different priority levels"
-            },
-            {
-                "priority": "UNKNOWN",
-                "line": 16,
-                "position": 0,
-                "comment": "write more tests"
-            }
-        ],
-        "timing": "1.321131 ms"
-    },
-    {
-        "fname": "/Users/codebuddha/GitHub/whatodo/todo.cc",
-        "isDirectory": false,
-        "size": 2617,
-        "todos": [
-            {
-                "priority": "LOW",
-                "line": 10,
-                "position": 0,
-                "comment": "allow regex override"
-            }
-        ],
-        "timing": "1.16128 ms"
-    },
-    {
-        "fname": "/Users/codebuddha/GitHub/whatodo/docs/index.html",
-        "isDirectory": false,
-        "size": 2506,
-        "todos": [
-            {
-                "priority": "LOW",
-                "line": 53,
-                "position": 10,
-                "comment": "low priority</code></li>"
-            },
-            {
-                "priority": "MID",
-                "line": 54,
-                "position": 10,
-                "comment": "mid priority</code></li>"
-            },
-            {
-                "priority": "HIGH",
-                "line": 55,
-                "position": 10,
-                "comment": "high priority</code></li>"
-            }
-        ],
-        "timing": "1.243506 ms"
+        "timing": "70.36 μs"
     }
 ]

@@ -6,9 +6,11 @@
     "scripts": {
         "start": "npm run install && node index.js",
         "build": "node-gyp build",
-        "install": "node-gyp rebuild",
         "test": "mocha",
         "docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/"
+    },
+    "bin": {
+        "todo": "./cli.js"
     },
     "gypfile": true,
     "repository": {

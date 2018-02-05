@@ -1,7 +1,7 @@
 <p align="center">
     <a href="#">
-        <img width="128px"
-             height="128px"
+        <img width="242px"
+             height="72px"
              alt="xterrainlogo"
              src="./todo.png" />
     </a>
@@ -19,11 +19,23 @@ I certainly do.
 
 Wouldn't it be nice to pull those TODOs out and have priorities, links to where to your code, all ready to go?
 
+### Install
+
+`npm i -g whatodo`
+
+### Usage
+
+List your TODO comments throughout your code
+
 List priorities:
 
 - `// TODO: low priority`
 - `// TODO:: mid priority`
 - `// TODO::: high priority`
+
+When you want to collect your TODOs run:
+
+`todo [directory] [..options]`
 
 Output:
 
