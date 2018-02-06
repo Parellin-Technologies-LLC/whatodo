@@ -7,7 +7,6 @@
         "start": "node cli.js ./",
         "build": "node-gyp build",
         "configure": "node-gyp configure",
-        "install": "node-gyp install",
         "test": "npm run configure && npm run build && mocha",
         "docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/"
     },
