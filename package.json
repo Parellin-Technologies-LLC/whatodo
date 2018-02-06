@@ -7,7 +7,8 @@
         "start": "node cli.js ./",
         "build": "node-gyp build",
         "configure": "node-gyp configure",
-        "test": "npm run configure && npm run build && mocha",
+        "pretest": "node-gyp rebuild -C",
+        "test": "mocha",
         "docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/"
     },
     "bin": {
@@ -38,7 +39,7 @@
         "mocha": "^5.0.0"
     },
     "dependencies": {
-        "node-gyp": "^3.6.2",
-        "node-addon-api": "^1.2.0"
+        "bindings": "^1.3.0",
+        "node-gyp": "^3.6.2"
     }
 }
