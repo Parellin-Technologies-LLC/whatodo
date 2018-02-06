@@ -26,6 +26,7 @@ class Whatodo
         this.ignoreExtsRx = new RegExp( `\\.(${this.ignoreExts.join( '|' )})+$` );
         this.todoFormat   = opts.todoFormat || '\\/\\/ ?TODO:?:?:?';
         this.outputFile   = resolve( opts.outputFile || './TODOS.json' );
+        this.outputFormat = opts.outputFormat || Whatodo.JSON;
     }
     
     initialize()
@@ -72,7 +73,15 @@ class Whatodo
                     return rej( `No TODOs found in ${this.outputFile}` );
                 }
                 
-                writeFile( this.outputFile, JSON.stringify( this.todos, null, 4 ),
+                let format = this.todos;
+                
+                if( this.outputFormat === Whatodo.JSON ) {
+                    format = JSON.stringify( this.todos, null, 4 );
+                } else {
+                    return console.error( `Format: ${this.outputFormat} not supported yet` );
+                }
+                
+                writeFile( this.outputFile, format,
                     e => e ? rej( e ) : res( `${this.outputFile} SAVED` )
                 );
             }
@@ -122,5 +131,9 @@ class Whatodo
         );
     }
 }
+
+Whatodo.XML  = 'XML';
+Whatodo.JSON = 'JSON';
+Whatodo.YAML = 'YAML';
 
 module.exports = Whatodo;

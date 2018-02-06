@@ -4,9 +4,10 @@
     "description": "A TODO collector, organizer, and task manager",
     "main": "index.js",
     "scripts": {
-        "start": "npm run install && node index.js",
+        "start": "node index.js",
         "build": "node-gyp build",
-        "test": "node-gyp build && mocha",
+        "configure": "node-gyp configure",
+        "test": "npm run configure && npm run build && mocha",
         "docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/"
     },
     "bin": {

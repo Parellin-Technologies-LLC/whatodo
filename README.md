@@ -27,6 +27,22 @@ Wouldn't it be nice to pull those TODOs out and have priorities, links to where 
 
 List your TODO comments throughout your code
 
+When ready, run the `todo` cli to collect your comments:
+
+```
+  Whatodo
+  
+  Whatodo is a NPM Module designed to quickly and efficiently extract your
+  TODO comments from your code and organize them in a simple & readable format
+  
+  Options:
+  
+    -h, --help       show this help menu
+    -v, --version    show package version
+    -d, --dir        directory to check TODOs
+    -o, --output     output file to save TODOs
+```
+
 List priorities:
 
 - `// TODO: low priority`

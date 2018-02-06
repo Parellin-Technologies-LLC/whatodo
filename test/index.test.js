@@ -9,11 +9,42 @@ const
     chai           = require( 'chai' ),
     chaiAsPromised = require( 'chai-as-promised' ),
     expect         = chai.expect,
+    fs             = require( 'fs' ),
     { join }       = require( 'path' ),
-    fs             = require( 'fs' );
--
-    
-    chai.use( chaiAsPromised );
+    { spawn }      = require( 'child_process' ),
+    { version }    = require( '../package.json' );
+
+chai.use( chaiAsPromised );
+
+function spawnCLI( cmd, ...args ) {
+    return new Promise(
+        ( res, rej ) => {
+            const
+                op   = spawn( cmd, args ),
+                body = [],
+                err  = [];
+            
+            op.stdout.on( 'data', data => body.push( data ) );
+            op.stderr.on( 'data', data => err.push( data ) );
+            op.on( 'error', rej );
+            op.on( 'close',
+                () => {
+                    const
+                        e = Buffer.concat( err ).toString(),
+                        d = Buffer.concat( body ).toString();
+                    
+                    if( e && /Warning: N-API is an experimental/.test( e ) ) {
+                        res( d );
+                    } else if( e ) {
+                        rej( e );
+                    } else {
+                        res( d );
+                    }
+                }
+            );
+        }
+    );
+}
 
 describe( 'whatodo - tests', () => {
     const
@@ -41,11 +72,13 @@ describe( 'whatodo - tests', () => {
         () => {
             expect( todos.searchFile( testFile ) )
                 .to.be.an( 'array' )
-                .and.deep.eq( [
+                .and.deep.eq(
+                [
                     { priority: 'LOW', line: 1, position: 0, comment: 'low priority' },
                     { priority: 'MID', line: 2, position: 0, comment: 'mid priority' },
                     { priority: 'HIGH', line: 3, position: 0, comment: 'high priority' }
-                ] );
+                ]
+            );
         }
     );
     
@@ -103,7 +136,7 @@ describe( 'whatodo - tests', () => {
         }
     );
     
-    it( `should create file with correct parameters`,
+    it( 'should create file with correct parameters',
         () => {
             let outputData = fs.readFileSync( todos.outputFile );
             outputData     = outputData.toString( 'utf8' );
@@ -111,5 +144,23 @@ describe( 'whatodo - tests', () => {
             
             expect( outputData ).to.deep.eq( todos.todos );
         }
+    );
+    
+    it( 'should report help menu',
+        () => expect( spawnCLI( 'node', './cli.js', '-h' ) )
+            .to.eventually.have
+            .string( '-h, --help' )
+    );
+    
+    it( 'should report version',
+        () => expect( spawnCLI( 'node', './cli.js', '-v' ) )
+            .to.eventually.have
+            .string( `v${version}` )
+    );
+    
+    it( 'should report error if incorrect format is used',
+        () => expect( spawnCLI( 'node', './cli.js', './', '-f', 'JSONS' ) )
+            .to.eventually.have
+            .string( 'not a supported output' )
     );
 } );
