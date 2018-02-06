@@ -8,7 +8,8 @@
 const
     { readdir, stat, writeFile } = require( 'fs' ),
     { resolve, join }            = require( 'path' ),
-    todo                         = require( 'bindings' )( 'todo' );
+    // todo                         = require( 'bindings' )( 'todo' );
+    todo                         = require( './build/Release/todo' );
 
 // TODO:: write docs, installation, usage, etc
 // TODO: note syntax and priority specification for different priority levels
