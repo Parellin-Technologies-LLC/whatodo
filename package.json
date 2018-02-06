@@ -4,7 +4,7 @@
     "description": "A TODO collector, organizer, and task manager",
     "main": "index.js",
     "scripts": {
-        "start": "node index.js",
+        "start": "node cli.js ./",
         "build": "node-gyp build",
         "configure": "node-gyp configure",
         "test": "npm run configure && npm run build && mocha",
