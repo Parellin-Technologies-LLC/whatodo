@@ -11,7 +11,7 @@
         "docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/"
     },
     "bin": {
-        "todo": "./cli.js"
+        "whatodo": "./cli.js"
     },
     "gypfile": true,
     "repository": {
