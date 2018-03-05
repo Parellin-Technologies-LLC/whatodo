@@ -4,12 +4,14 @@
     "description": "A TODO collector, organizer, and task manager",
     "main": "index.js",
     "scripts": {
+        "package": "~/nodec --tmpdir=./.tmp -o whatodo ./cli.js",
         "start": "node cli.js ./",
         "build": "node-gyp build",
         "configure": "node-gyp configure",
         "pretest": "node-gyp rebuild -C",
+		"dev": "npm run build && node -e \"console.log( new require( './index.js' ).searchFile( './index.js' ) );\"",
         "test": "mocha",
-        "docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/"
+        "docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/ && cp ./todo.png docs/todo.png"
     },
     "bin": {
         "todo": "./cli.js"

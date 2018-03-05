@@ -1,46 +1,35 @@
-#include "node_api.h"
+#include <node.h>
 #include <iostream>
 #include <fstream>
 #include <regex>
 #include <string>
 #include <chrono>
 
+using v8::Context;
+using v8::Function;
+using v8::FunctionCallbackInfo;
+using v8::FunctionTemplate;
+using v8::Isolate;
+using v8::Local;
+using v8::Number;
+using v8::Object;
+using v8::Persistent;
+using v8::String;
+using v8::Value;
+using v8::Array;
+//using v8::Null;
+using v8::Handle;
+using v8::Exception;
+
 using namespace std;
 
-/*
-#include <node_api.h>
-#include <assert.h>
-
-napi_value Method(napi_env env, napi_callback_info info) {
-  napi_status status;
-  napi_value world;
-  status = napi_create_string_utf8(env, "world", 5, &world);
-  assert(status == napi_ok);
-  return world;
-}
-
-#define DECLARE_NAPI_METHOD(name, func)                          \
-  { name, 0, func, 0, 0, 0, napi_default, 0 }
-
-napi_value Init(napi_env env, napi_value exports) {
-  napi_status status;
-  napi_property_descriptor desc = DECLARE_NAPI_METHOD("hello", Method);
-  status = napi_define_properties(env, exports, 1, &desc);
-  assert(status == napi_ok);
-  return exports;
-}
-
-NAPI_MODULE(hello, Init)
-
-*/
-
-// TODO: allow regex override
-Napi::Value SearchLine( Napi::Env &env, string &line, int &i ) {
+//// TODO: allow regex override
+Local<Value> SearchLine( Isolate *isolate, string &line, int &i ) {
     const std::regex rx( "\\/\\/ ?TODO:?:?:? ?" );
     bool matchFound;
 
     std::sregex_iterator ri = std::sregex_iterator( line.begin(), line.end(), rx );
-    Napi::Object match;
+    Local<Object> match = Object::New( isolate );
 
     for( ; ri != std::sregex_iterator(); ++ri ) {
         const std::smatch m = *ri;
@@ -49,11 +38,12 @@ Napi::Value SearchLine( Napi::Env &env, string &line, int &i ) {
 
         if( !matchFound ) {
             const string ms = m.str();
+
             const int
-                llen        = line.length(),
-                len         = ms.length(),
-                pos         = m.position(),
-                cpos        = pos + len;
+                llen = line.length(),
+                len  = ms.length(),
+                pos  = m.position(),
+                cpos = pos + len;
 
             const string comment = line.substr( cpos, llen - cpos );
 
@@ -61,39 +51,70 @@ Napi::Value SearchLine( Napi::Env &env, string &line, int &i ) {
                 break;
             }
 
-            match = Napi::Object::New( env );
-
-            match.Set( "priority",
+            match->Set( String::NewFromUtf8( isolate, "priority" ),
                 ms.find( ":::" ) != std::string::npos ? "HIGH" :
                     ms.find( "::" ) != std::string::npos ? "MID" :
                         ms.find( ":" ) != std::string::npos ? "LOW" :
                             "UNKNOWN"
             );
 
-            match.Set( "line", i );
-            match.Set( "position", pos );
-            match.Set( "comment", comment );
+            match->Set( String::NewFromUtf8( isolate, "line" ), i );
+            match->Set( String::NewFromUtf8( isolate, "position" ), pos );
+            match->Set( String::NewFromUtf8( isolate, "comment" ), comment );
         }
     }
 
-    return !matchFound ? match : Napi::Value();
+    return !matchFound ? match : Null();
 }
 
-Napi::Value SearchFile( const Napi::CallbackInfo &args ) {
-    Napi::Env env = args.Env();
-    std::string fname = args[ 0 ].As<Napi::String>();
+std::string string_format( const std::string fmt, ... ) {
+    std::vector< char > str( 100, '\0' );
+    va_list ap;
 
-    if( !args[ 0 ].IsString() ) {
-        Napi::TypeError::New( env, "Argument Error - expected string" ).ThrowAsJavaScriptException();
-        return env.Null();
+    while( 1 ) {
+        va_start( ap, fmt );
+
+        auto n = vsnprintf( str.data(), str.size(), fmt.c_str(), ap );
+
+        va_end( ap );
+
+        if( ( n > -1 ) && ( size_t( n ) < str.size() ) ) {
+            return str.data();
+        }
+
+        if( n > -1 ) {
+            str.resize( n + 1 );
+		} else {
+            str.resize( str.size() * 2 );
+		}
     }
 
-    Napi::Array todos = Napi::Array::New( env );
+    return str.data();
+}
+
+std::string v8StringToStd( Local<v8::String> ref ) {
+	String::Utf8Value arg( ref );
+	return std::string( *arg );
+}
+
+void SearchFile( const FunctionCallbackInfo<Value> &args ) {
+    Isolate *isolate = args.GetIsolate();
+
+    if( args.Length() < 1 || !args[ 0 ]->IsString() ) {
+    	isolate->ThrowException( Exception::TypeError( String::NewFromUtf8( isolate, "Argument Error - expected string" ) ) );
+    	return;
+    }
+
+    std::string fname = v8StringToStd( args[ 0 ]->ToString() );
+
+    Local<Object> result = Object::New( isolate );
+    Local<Array> todos = Array::New( isolate );
 
     auto begin = std::chrono::high_resolution_clock::now();
 
     int i = 0,
         n = 0;
+
     string line;
     ifstream file( fname );
 
@@ -101,33 +122,36 @@ Napi::Value SearchFile( const Napi::CallbackInfo &args ) {
         while( getline( file, line ) )
         {
             ++i;
-            Napi::Value to = SearchLine( env, line, i );
+            Local<Value> to = SearchLine( isolate, line, i );
 
             if( !to.IsEmpty() ) {
-                todos[ n++ ] = to;
+                todos->Set( n++, to );
             }
         }
 
         file.close();
     } else {
-        Napi::TypeError::New( env, "Argument Error - unable to open file" ).ThrowAsJavaScriptException();
-        return env.Null();
+    	isolate->ThrowException( Exception::TypeError( String::NewFromUtf8( isolate, "Argument Error - unable to open file" ) ) );
+        return;
     }
 
-    auto end = std::chrono::high_resolution_clock::now();
+    auto end     = std::chrono::high_resolution_clock::now();
+    auto tresult = std::chrono::duration_cast<std::chrono::nanoseconds>( end - begin ).count();
 
-    todos[ "time" ] = std::chrono::duration_cast<std::chrono::nanoseconds>( end - begin ).count();
+    std::string time = tresult == 0 ? "0" :
+    	tresult < 1000 ? string_format( "%lld ns", tresult ) :
+    		tresult < 1000000 ? string_format( "%.3f μs", ( double )tresult / 1e3 ) :
+    			tresult < 1000000000 ? string_format( "%.3f ms", ( double )tresult / 1e6 ) :
+    				string_format( "%.3f s", ( double )tresult / 1e9 );
 
-    return todos;
+    result->Set( String::NewFromUtf8( isolate, "timing" ), String::NewFromUtf8( isolate, time.c_str() ) );
+    result->Set( String::NewFromUtf8( isolate, "todos" ), todos );
+
+    args.GetReturnValue().Set( result );
 }
 
-Napi::Object Init( Napi::Env env, Napi::Object exports ) {
-    exports.Set(
-        Napi::String::New( env, "searchFile" ),
-        Napi::Function::New( env, SearchFile )
-    );
-
-    return exports;
+void init( Local<Object> exports ) {
+	NODE_SET_METHOD( exports, "searchFile", SearchFile );
 }
 
-NODE_API_MODULE( todo, Init );
+NODE_MODULE( NODE_GYP_MODULE_NAME, init );

@@ -2,7 +2,7 @@
     <a href="#">
         <img width="242px"
              height="72px"
-             alt="xterrainlogo"
+             alt="whatodo"
              src="./todo.png" />
     </a>
 </p>
