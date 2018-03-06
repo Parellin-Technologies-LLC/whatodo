@@ -1,6 +1,6 @@
 {
     "name": "whatodo",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "description": "A TODO collector, organizer, and task manager",
     "main": "index.js",
     "scripts": {
@@ -9,7 +9,7 @@
         "build": "node-gyp build",
         "configure": "node-gyp configure",
         "pretest": "node-gyp rebuild -C",
-		"dev": "npm run build && node -e \"console.log( new require( './index.js' ).searchFile( './index.js' ) );\"",
+        "dev": "npm run build && node -e \"console.log( new require( './index.js' ).searchFile( './index.js' ) );\"",
         "test": "mocha",
         "docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/ && cp ./todo.png docs/todo.png"
     },
