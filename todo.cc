@@ -17,11 +17,45 @@ using v8::Persistent;
 using v8::String;
 using v8::Value;
 using v8::Array;
-//using v8::Null;
+using v8::Null;
 using v8::Handle;
 using v8::Exception;
 
 using namespace std;
+
+std::string string_format( const std::string fmt, ... ) {
+    std::vector< char > str( 100, '\0' );
+    va_list ap;
+
+    while( 1 ) {
+        va_start( ap, fmt );
+
+        auto n = vsnprintf( str.data(), str.size(), fmt.c_str(), ap );
+
+        va_end( ap );
+
+        if( ( n > -1 ) && ( size_t( n ) < str.size() ) ) {
+            return str.data();
+        }
+
+        if( n > -1 ) {
+            str.resize( n + 1 );
+		} else {
+            str.resize( str.size() * 2 );
+		}
+    }
+
+    return str.data();
+}
+
+std::string v8StringToStd( Local<String> ref ) {
+	String::Utf8Value arg( ref );
+	return std::string( *arg );
+}
+
+Local<String> stdStringToV8( Isolate *isolate, std::string ref ) {
+	return String::NewFromUtf8( isolate, ref.c_str() );
+}
 
 //// TODO: allow regex override
 Local<Value> SearchLine( Isolate *isolate, string &line, int &i ) {
@@ -51,50 +85,20 @@ Local<Value> SearchLine( Isolate *isolate, string &line, int &i ) {
                 break;
             }
 
-            match->Set( String::NewFromUtf8( isolate, "priority" ),
-                ms.find( ":::" ) != std::string::npos ? "HIGH" :
-                    ms.find( "::" ) != std::string::npos ? "MID" :
-                        ms.find( ":" ) != std::string::npos ? "LOW" :
-                            "UNKNOWN"
-            );
+//            match->Set( String::NewFromUtf8( isolate, "priority" ),
+//                ms.find( ":::" ) != std::string::npos ? "HIGH" :
+//                    ms.find( "::" ) != std::string::npos ? "MID" :
+//                        ms.find( ":" ) != std::string::npos ? "LOW" :
+//                            "UNKNOWN"
+//            );
 
-            match->Set( String::NewFromUtf8( isolate, "line" ), i );
-            match->Set( String::NewFromUtf8( isolate, "position" ), pos );
-            match->Set( String::NewFromUtf8( isolate, "comment" ), comment );
+//            match->Set( stdStringToV8( isolate, "line" ), i );
+//            match->Set( String::NewFromUtf8( isolate, "position" ), pos );
+//            match->Set( String::NewFromUtf8( isolate, "comment" ), comment );
         }
     }
 
-    return !matchFound ? match : Null();
-}
-
-std::string string_format( const std::string fmt, ... ) {
-    std::vector< char > str( 100, '\0' );
-    va_list ap;
-
-    while( 1 ) {
-        va_start( ap, fmt );
-
-        auto n = vsnprintf( str.data(), str.size(), fmt.c_str(), ap );
-
-        va_end( ap );
-
-        if( ( n > -1 ) && ( size_t( n ) < str.size() ) ) {
-            return str.data();
-        }
-
-        if( n > -1 ) {
-            str.resize( n + 1 );
-		} else {
-            str.resize( str.size() * 2 );
-		}
-    }
-
-    return str.data();
-}
-
-std::string v8StringToStd( Local<v8::String> ref ) {
-	String::Utf8Value arg( ref );
-	return std::string( *arg );
+    return !matchFound ? match : Null( isolate );
 }
 
 void SearchFile( const FunctionCallbackInfo<Value> &args ) {
