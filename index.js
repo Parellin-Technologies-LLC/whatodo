@@ -14,32 +14,44 @@ const
 // TODO:: write docs, installation, usage, etc
 // TODO: note syntax and priority specification for different priority levels
 // TODO: allow progress bar in CLI
+// TODO::: allow single file or directory TODO search
 class Whatodo
 {
 	constructor( opts )
 	{
 		opts = opts || {};
 		
+		this.initialized  = false;
 		this.dir          = resolve( opts.dir || process.cwd() );
 		this.ignore       = opts.ignore || [ 'node_modules', '.git', '.idea' ];
 		this.ignoreRx     = new RegExp( `^${this.ignore.join( '$|^' )}$` );
 		this.ignoreExts   = opts.ignoreExts || [ 'json', 'html', 'css', 'md' ];
 		this.ignoreExtsRx = new RegExp( `\\.(${this.ignoreExts.join( '|' )})+$` );
-		this.todoFormat   = opts.todoFormat || '\\/\\/ ?TODO:?:?:?';
+		// this.todoPattern  = opts.todoPattern || '\\/\\/ ?TODO:?:?:?';
+		this.todoPattern  = opts.todoPattern || '\\/\\/ ?SUPO:?:?:? ?';
 		this.outputFile   = resolve( opts.outputFile || './TODOS.json' );
 		this.outputFormat = opts.outputFormat || Whatodo.JSON;
+		this.opts         = {
+			dir: this.dir,
+			todoPattern: this.todoPattern
+		};
 	}
 	
 	initialize()
 	{
 		return this.readDirectory( this.dir )
 			.then( files => this.files = files )
+			.then( () => this.initialized = true )
 			.then( () => this )
 			.catch( console.error );
 	}
 	
 	run()
 	{
+		if( !this.initialized ) {
+			throw new Error( 'Error - Whatodo must be initialized before calling run' );
+		}
+		
 		return new Promise(
 			( res, rej ) => {
 				if( !this.files || !this.files.length ) {
@@ -48,11 +60,11 @@ class Whatodo
 				
 				this.todos = this.files.filter(
 					item => {
-						const result = this.searchFile( item.fname );
-						item.todos  = result.todos;
-						item.timing = result.timing;
+						console.log( item );
+						const result = this.searchFile( item.fname, this.opts );
+						// console.log( result );
 						
-						return item.todos.length ? item : false;
+						return result.todos.length ? result : false;
 					}
 				);
 				
@@ -85,9 +97,13 @@ class Whatodo
 		);
 	}
 	
-	static searchFile( file )
+	searchFile( file, opts = {} ) {
+		return Whatodo.searchFile( file, opts );
+	}
+	
+	static searchFile( file, opts = {} )
 	{
-		return todo.searchFile( file );
+		return todo.searchFile( file, opts );
 	}
 	
 	fstats( fname )

@@ -1,27 +1,4 @@
-#include <node.h>
-#include <iostream>
-#include <fstream>
-#include <regex>
-#include <string>
-#include <chrono>
-
-using v8::Context;
-using v8::Function;
-using v8::FunctionCallbackInfo;
-using v8::FunctionTemplate;
-using v8::Isolate;
-using v8::Local;
-using v8::Number;
-using v8::Object;
-using v8::Persistent;
-using v8::String;
-using v8::Value;
-using v8::Array;
-using v8::Null;
-using v8::Handle;
-using v8::Exception;
-
-using namespace std;
+#include "todo.h"
 
 std::string string_format( const std::string fmt, ... ) {
     std::vector< char > str( 100, '\0' );
@@ -59,8 +36,8 @@ Local<String> stdStringToV8( Isolate *isolate, std::string ref ) {
 
 //// TODO: allow regex override
 Local<Value> SearchLine( Isolate *isolate, string &line, int &i ) {
-    const std::regex rx( "\\/\\/ ?TODO:?:?:? ?" );
-    bool matchFound;
+    const std::regex rx( v8StringToStd( _TODO_PATTERN ) );
+    bool containsTodo;
 
     std::sregex_iterator ri = std::sregex_iterator( line.begin(), line.end(), rx );
     Local<Object> match = Object::New( isolate );
@@ -68,9 +45,9 @@ Local<Value> SearchLine( Isolate *isolate, string &line, int &i ) {
     for( ; ri != std::sregex_iterator(); ++ri ) {
         const std::smatch m = *ri;
 
-        matchFound = m.empty();
+        containsTodo = !m.empty();
 
-        if( !matchFound ) {
+        if( containsTodo ) {
             const string ms = m.str();
 
             const int
@@ -79,29 +56,37 @@ Local<Value> SearchLine( Isolate *isolate, string &line, int &i ) {
                 pos  = m.position(),
                 cpos = pos + len;
 
-            const string comment = line.substr( cpos, llen - cpos );
+            Local<String> comment = stdStringToV8( isolate, line.substr( cpos, llen - cpos ) );
 
-            if( comment == "" ) {
+            if( comment == _EMPTY_STRING ) {
+            	containsTodo = false;
                 break;
             }
 
-//            match->Set( String::NewFromUtf8( isolate, "priority" ),
-//                ms.find( ":::" ) != std::string::npos ? "HIGH" :
-//                    ms.find( "::" ) != std::string::npos ? "MID" :
-//                        ms.find( ":" ) != std::string::npos ? "LOW" :
-//                            "UNKNOWN"
-//            );
+            match->Set( _PRIORITY,
+				ms.find( ":::" ) != std::string::npos ? _PRIORITY_HIGH :
+					ms.find( "::" ) != std::string::npos ? _PRIORITY_MID :
+						ms.find( ":" ) != std::string::npos ? _PRIORITY_LOW :
+							_PRIORITY_UNKNOWN
+			);
 
-//            match->Set( stdStringToV8( isolate, "line" ), i );
-//            match->Set( String::NewFromUtf8( isolate, "position" ), pos );
-//            match->Set( String::NewFromUtf8( isolate, "comment" ), comment );
+			match->Set( _LINE, Number::New( isolate, i ) );
+			match->Set( _POSITION, Number::New( isolate, pos ) );
+			match->Set( _COMMENT, comment );
         }
     }
 
-    return !matchFound ? match : Null( isolate );
+    if( containsTodo ) {
+    	return match;
+    } else {
+    	return Null( isolate );
+    }
 }
 
 void SearchFile( const FunctionCallbackInfo<Value> &args ) {
+	// TODO: REMOVE THIS:::
+	cout << endl;
+
     Isolate *isolate = args.GetIsolate();
 
     if( args.Length() < 1 || !args[ 0 ]->IsString() ) {
@@ -109,10 +94,36 @@ void SearchFile( const FunctionCallbackInfo<Value> &args ) {
     	return;
     }
 
+//    _TODO_PATTERN     = stdStringToV8( isolate, "\\/\\/ ?TODO:?:?:? ?" );
+    _PRIORITY         = stdStringToV8( isolate, "priority" );
+    _PRIORITY_HIGH    = stdStringToV8( isolate, "HIGH" );
+    _PRIORITY_MID     = stdStringToV8( isolate, "MID" );
+    _PRIORITY_LOW     = stdStringToV8( isolate, "LOW" );
+    _PRIORITY_UNKNOWN = stdStringToV8( isolate, "UNKNOWN" );
+    _LINE             = stdStringToV8( isolate, "line" );
+    _POSITION         = stdStringToV8( isolate, "position" );
+    _COMMENT          = stdStringToV8( isolate, "comment" );
+    _EMPTY_STRING     = stdStringToV8( isolate, "" );
+
     std::string fname = v8StringToStd( args[ 0 ]->ToString() );
 
+    Local<Context> context = isolate->GetCurrentContext();
+    Local<Object> obj      = args[ 1 ]->ToObject( context ).ToLocalChecked();
+    Local<Array> props     = obj->GetOwnPropertyNames( context ).ToLocalChecked();
+
+    for( int i = 0, l = props->Length(); i < l; i++ ) {
+    	Local<Value> localKey = props->Get( i );
+    	std::string key = *String::Utf8Value( localKey );
+
+    	if( key == "todoPattern" ) {
+    		_TODO_PATTERN = obj->Get( context, localKey ).ToLocalChecked()->ToString();
+    	}
+	}
+
+	cout << v8StringToStd( _TODO_PATTERN ) << endl;
+
     Local<Object> result = Object::New( isolate );
-    Local<Array> todos = Array::New( isolate );
+    Local<Array> todos   = Array::New( isolate );
 
     auto begin = std::chrono::high_resolution_clock::now();
 
@@ -128,7 +139,7 @@ void SearchFile( const FunctionCallbackInfo<Value> &args ) {
             ++i;
             Local<Value> to = SearchLine( isolate, line, i );
 
-            if( !to.IsEmpty() ) {
+            if( !to->IsNull() ) {
                 todos->Set( n++, to );
             }
         }
@@ -148,8 +159,9 @@ void SearchFile( const FunctionCallbackInfo<Value> &args ) {
     			tresult < 1000000000 ? string_format( "%.3f ms", ( double )tresult / 1e6 ) :
     				string_format( "%.3f s", ( double )tresult / 1e9 );
 
-    result->Set( String::NewFromUtf8( isolate, "timing" ), String::NewFromUtf8( isolate, time.c_str() ) );
-    result->Set( String::NewFromUtf8( isolate, "todos" ), todos );
+    result->Set( stdStringToV8( isolate, "file" ), stdStringToV8( isolate, fname ) );
+    result->Set( stdStringToV8( isolate, "timing" ), stdStringToV8( isolate, time ) );
+    result->Set( stdStringToV8( isolate, "todos" ), todos );
 
     args.GetReturnValue().Set( result );
 }
