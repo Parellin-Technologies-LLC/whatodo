@@ -34,7 +34,6 @@ Local<String> stdStringToV8( Isolate *isolate, std::string ref ) {
 	return String::NewFromUtf8( isolate, ref.c_str() );
 }
 
-//// TODO: allow regex override
 Local<Value> SearchLine( Isolate *isolate, string &line, int &i ) {
     const std::regex rx( v8StringToStd( _TODO_PATTERN ) );
     bool containsTodo;
@@ -87,7 +86,7 @@ void SearchFile( const FunctionCallbackInfo<Value> &args ) {
     Isolate *isolate = args.GetIsolate();
 
     if( args.Length() < 1 || !args[ 0 ]->IsString() ) {
-    	isolate->ThrowException( Exception::TypeError( String::NewFromUtf8( isolate, "Argument Error - expected string" ) ) );
+    	isolate->ThrowException( Exception::TypeError( String::NewFromUtf8( isolate, "Argument Error - expected string for [filename]" ) ) );
     	return;
     }
 
@@ -161,8 +160,25 @@ void SearchFile( const FunctionCallbackInfo<Value> &args ) {
     args.GetReturnValue().Set( result );
 }
 
+void RemoveTodo( const FunctionCallbackInfo<Value> &args ) {
+    Isolate *isolate = args.GetIsolate();
+
+    if( !args[ 0 ]->IsString() ) {
+    	isolate->ThrowException( Exception::TypeError( String::NewFromUtf8( isolate, "Argument Error - expected string [filename]" ) ) );
+    	return;
+    } else if( !args[ 1 ]->IsNumber() ) {
+    	isolate->ThrowException( Exception::TypeError( String::NewFromUtf8( isolate, "Argument Error - expected number [line]" ) ) );
+    	return;
+    }
+
+    // TODO:: add removeTodo functionality
+
+    args.GetReturnValue().Set( result );
+}
+
 void init( Local<Object> exports ) {
 	NODE_SET_METHOD( exports, "searchFile", SearchFile );
+	NODE_SET_METHOD( exports, "removeTodo", RemoveTodo );
 }
 
 NODE_MODULE( NODE_GYP_MODULE_NAME, init );

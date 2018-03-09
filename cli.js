@@ -50,12 +50,12 @@ function reportError( e ) {
 	}
 	
 	let
-		dir          = resolve( './' ),
+		input          = resolve( './' ),
 		outputFormat = Whatodo.JSON,
 		outputFile;
 	
 	if( args[ 2 ] ) {
-		dir = resolve( args[ 2 ] );
+		input = resolve( args[ 2 ] );
 	}
 	
 	if( args[ 3 ] ) {
@@ -89,14 +89,21 @@ function reportError( e ) {
 	}
 	
 	const
-		opts = { dir, outputFile, outputFormat };
+		opts = { input, outputFile, outputFormat };
 	
-	console.log( `collecting TODOs from ${opts.dir}` );
-	// console.log( `saving collection to ${opts.outputFile}` );
+	console.log( `collecting TODOs from ${opts.input}` );
 	
 	new Whatodo( opts )
 		.initialize()
 		.then( inst => inst.run() )
-		.then( inst => inst.save() )
+		.then( inst => {
+			if( outputFile ) {
+				console.log( `saving collection to ${outputFile}` );
+				
+				return inst.save();
+			} else {
+				return inst.print();
+			}
+		} )
 		.catch( console.error );
 } )( process.argv );

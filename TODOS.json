@@ -1,7 +1,71 @@
 [
     {
-        "fname": "/Users/codebuddha/GitHub/whatodo/test/test.cc",
-        "isDirectory": false,
-        "size": 169
+        "file": "/Users/codebuddha/GitHub/whatodo/index.js",
+        "timing": "1.847 ms",
+        "todos": [
+            {
+                "priority": "MID",
+                "line": 14,
+                "position": 0,
+                "comment": "write docs, installation, usage, etc"
+            },
+            {
+                "priority": "LOW",
+                "line": 15,
+                "position": 0,
+                "comment": "note syntax and priority specification for different priority levels"
+            },
+            {
+                "priority": "LOW",
+                "line": 16,
+                "position": 0,
+                "comment": "allow progress bar in CLI"
+            },
+            {
+                "priority": "HIGH",
+                "line": 17,
+                "position": 0,
+                "comment": "allow single file or directory TODO search"
+            }
+        ],
+        "size": 4624
+    },
+    {
+        "file": "/Users/codebuddha/GitHub/whatodo/todo.cc",
+        "timing": "2.099 ms",
+        "todos": [
+            {
+                "priority": "MID",
+                "line": 174,
+                "position": 4,
+                "comment": "add removeTodo functionality"
+            }
+        ],
+        "size": 5827
+    },
+    {
+        "file": "/Users/codebuddha/GitHub/whatodo/test/test.cc",
+        "timing": "88.114 μs",
+        "todos": [
+            {
+                "priority": "LOW",
+                "line": 1,
+                "position": 0,
+                "comment": "todo low priority"
+            },
+            {
+                "priority": "MID",
+                "line": 2,
+                "position": 0,
+                "comment": "todo mid priority"
+            },
+            {
+                "priority": "HIGH",
+                "line": 3,
+                "position": 0,
+                "comment": "todo high priority"
+            }
+        ],
+        "size": 170
     }
 ]

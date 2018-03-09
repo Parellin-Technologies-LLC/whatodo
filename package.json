@@ -12,7 +12,7 @@
         "dev": "npm run build && node -e \"console.log( new require( './index.js' ).searchFile( './test/test.cc', { todoPattern: '\\/\\/ ?TEST:?:?:? ?' } ) );\"",
         "test": "mocha",
         "docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/ && cp ./todo.png docs/todo.png",
-		"compile": "npm run configure && npm run build && ~/nodec --tmpdir=../.tmp -o todo ./cli.js"
+        "compile": "npm run configure && npm run build && ~/nodec --tmpdir=../.tmp -o todo ./cli.js"
     },
     "bin": {
         "todo": "./cli.js"

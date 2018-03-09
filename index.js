@@ -21,26 +21,35 @@ class Whatodo
 	{
 		opts = opts || {};
 		
-		this.initialized  = false;
-		this.dir          = resolve( opts.dir || process.cwd() );
-		this.ignore       = opts.ignore || [ 'node_modules', '.git', '.idea', 'docs', 'build' ];
+		this.initialized = false;
+		this.input       = resolve( opts.input || process.cwd() );
+		
+		this.ignore     = opts.ignore || [ 'node_modules', '.git', '.idea', 'docs', 'build' ];
+		this.ignoreExts = opts.ignoreExts || [ 'json', 'html', 'css', 'md' ];
+		
 		this.ignoreRx     = new RegExp( `^${this.ignore.join( '$|^' )}$` );
-		this.ignoreExts   = opts.ignoreExts || [ 'json', 'html', 'css', 'md' ];
 		this.ignoreExtsRx = new RegExp( `\\.(${this.ignoreExts.join( '|' )})+$` );
 		
-		this.todoPattern = opts.todoPattern || '\\/\\/ ?TEST:?:?:? ?';
+		this.todoPattern = opts.todoPattern || '\\/\\/ ?TODO:?:?:? ?';
 		
 		this.outputFile   = opts.outputFile ? resolve( opts.outputFile ) : null;
 		this.outputFormat = opts.outputFormat || Whatodo.JSON;
 		this.opts         = {
-			dir: this.dir,
+			input: this.input,
 			todoPattern: this.todoPattern
 		};
 	}
 	
 	initialize()
 	{
-		return this.readDirectory( this.dir )
+		return this.fstats( this.input )
+			.then( d => {
+				if( d.isDirectory ) {
+					return this.readDirectory( this.input );
+				} else {
+					return [ d ];
+				}
+			} )
 			.then( files => this.files = files )
 			.then( () => this.initialized = true )
 			.then( () => this )
@@ -61,46 +70,24 @@ class Whatodo
 					rej( 'Argument Error - No files found (initialize Whatodo first)' );
 				}
 				
-				this.todos = this.files.filter(
-					item => {
-						const result = this.searchFile( item.fname, this.opts );
-						return result.todos.length ? result : false;
-					}
+				this.todos = this.files.reduce(
+					( r, item ) => {
+						const result = this.searchFile( item.file, this.opts );
+						result.size  = item.size;
+						
+						if( result.todos.length ) {
+							r.push( result );
+						}
+						
+						return r;
+					}, []
 				);
 				
-				this.todos.filesSearched = this.files.length;
+				this.filesSearched = this.files.length;
+				this.timeEnd       = process.hrtime( this.timeStart );
+				this.totalTime     = convertHighResolutionTime( this.timeEnd, 2 );
 				
-				this.timeEnd = process.hrtime( this.timeStart );
-				this.timing  = convertHighResolutionTime( this.timeEnd, 2 );
 				res( this );
-			}
-		);
-	}
-	
-	save()
-	{
-		if( !this.outputFile ) {
-			return console.log( this.todos );
-			// return Promise.resolve( console.log( this.todos ) );
-		}
-		
-		return new Promise(
-			( res, rej ) => {
-				if( !this.todos.length ) {
-					return rej( `No TODOs found in ${this.outputFile}` );
-				}
-				
-				let format = this.todos;
-				
-				if( this.outputFormat === Whatodo.JSON ) {
-					format = JSON.stringify( this.todos, null, 4 );
-				} else {
-					return console.error( `Format: ${this.outputFormat} not supported yet` );
-				}
-				
-				writeFile( this.outputFile, format,
-					e => e ? rej( e ) : res( `${this.outputFile} SAVED` )
-				);
 			}
 		);
 	}
@@ -114,33 +101,38 @@ class Whatodo
 		return todo.searchFile( file, opts );
 	}
 	
-	fstats( fname )
+	removeTodo( file, line )
+	{
+	
+	}
+	
+	fstats( file )
 	{
 		return new Promise(
-			( res, rej ) => stat( fname,
+			( res, rej ) => stat( file,
 				( e, d ) => e ?
 					rej( e ) :
-					res( { fname, isDirectory: d.isDirectory(), size: d.size } )
+					res( { file, isDirectory: d.isDirectory(), size: d.size } )
 			)
 		);
 	}
 	
-	readDirectory( dir, files = [] )
+	readDirectory( input, files = [] )
 	{
 		return new Promise(
-			( res, rej ) => readdir( dir,
+			( res, rej ) => readdir( input,
 				( e, d ) => e ? rej( e ) : Promise.all(
 					d.map( fn => {
 						if( fn.match( this.ignoreRx ) || fn.match( this.ignoreExtsRx ) ) {
 							return;
 						}
 						
-						fn = join( dir, fn );
+						fn = join( input, fn );
 						
 						return this.fstats( fn )
 							.then(
 								info => info.isDirectory ?
-									this.readDirectory( info.fname, files ) :
+									this.readDirectory( info.file, files ) :
 									files.push( info )
 							)
 							.catch( rej );
@@ -150,6 +142,43 @@ class Whatodo
 					.catch( rej )
 			)
 		);
+	}
+	
+	getTodos()
+	{
+		return this.todos;
+	}
+	
+	print()
+	{
+		return process.stdout.write( JSON.stringify( this.getTodos(), null, 4 ) );
+	}
+	
+	save( fn )
+	{
+		return Promise.resolve( this.outputFile || resolve( fn ) )
+			.catch( () => console.log( 'Argument Error - must specify outputFile' ) )
+			.then( d => this.outputFile = d )
+			.then( () => new Promise(
+				( res, rej ) => {
+					if( !this.todos.length ) {
+						return rej( `No TODOs found in ${this.outputFile}` );
+					}
+					
+					let format = this.todos;
+					
+					if( this.outputFormat === Whatodo.JSON ) {
+						format = JSON.stringify( this.todos, null, 4 );
+					} else {
+						return console.error( `Format: ${this.outputFormat} not supported yet` );
+					}
+					
+					writeFile( this.outputFile, format,
+						e => e ? rej( e ) : res( `${this.outputFile} SAVED` )
+					);
+				}
+			) )
+			.catch( console.error );
 	}
 }
 
