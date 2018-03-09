@@ -5,6 +5,9 @@
 #include <string>
 #include <chrono>
 
+#include <stdio.h>
+#include <stdlib.h>
+
 using v8::Context;
 using v8::Function;
 using v8::FunctionCallbackInfo;

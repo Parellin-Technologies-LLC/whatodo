@@ -98,12 +98,19 @@ class Whatodo
 	
 	static searchFile( file, opts = {} )
 	{
+		file = resolve( file );
 		return todo.searchFile( file, opts );
 	}
 	
 	removeTodo( file, line )
 	{
+		return Whatodo.removeTodo( file, line );
+	}
 	
+	static removeTodo( file, line )
+	{
+		file = resolve( file );
+		return todo.removeTodo( file, line );
 	}
 	
 	fstats( file )

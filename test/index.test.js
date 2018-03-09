@@ -49,10 +49,11 @@ function spawnCLI( cmd, ...args ) {
 describe( 'whatodo - tests', () => {
 	const
 		Whatodo  = require( '../index' ),
-		testFile = join( process.cwd(), 'test', 'test.cc' );
+		testFile = join( process.cwd(), 'test', 'test.cc' ),
+		copyBack = join( process.cwd(), 'test', 'test_copy.cc' );
 	
 	let todos = new Whatodo( {
-		input: './test/',
+		input: testFile,
 		outputFile: 'TODOS.json'
 	} );
 	
@@ -63,6 +64,16 @@ describe( 'whatodo - tests', () => {
 		expect( todos ).to.have.property( 'todoPattern' );
 	} );
 	
+	it( 'should remove todo from file',
+		() => {
+			const output = todos.removeTodo( testFile, 6 );
+			expect( output ).to.eq( true );
+			
+			expect( fs.readFileSync( testFile ).toString( 'utf8' ) )
+				.to.not.include.string( "// TODO::: REMOVE THIS" );
+		}
+	);
+
 	it( 'should initialize and read files',
 		() => expect(
 			todos.initialize().then( inst => todos = inst )
@@ -70,11 +81,11 @@ describe( 'whatodo - tests', () => {
 			.to.eventually.have.property( 'files' )
 			.and.to.be.an( 'array' )
 	);
-	
+
 	it( 'searchFile should capture TODO comments',
 		() => {
 			const output = todos.searchFile( testFile );
-			
+
 			expect( output ).to.be.an( 'object' );
 			expect( output ).to.have.property( 'timing' );
 			expect( output ).to.have.property( 'file' ).and.eq( testFile );
@@ -85,11 +96,11 @@ describe( 'whatodo - tests', () => {
 			] );
 		}
 	);
-	
+
 	it( 'searchFile RegEx Pattern override should capture TEST comments',
 		() => {
 			const output = todos.searchFile( testFile, { todoPattern: '\\/\\/ ?TEST:?:?:? ?' } );
-			
+
 			expect( output ).to.be.an( 'object' );
 			expect( output ).to.have.property( 'timing' );
 			expect( output ).to.have.property( 'file' ).and.eq( testFile );
@@ -100,7 +111,7 @@ describe( 'whatodo - tests', () => {
 			] );
 		}
 	);
-	
+
 	it( 'should search the listed files and collect TODOs',
 		() => {
 			expect( todos.run().then( inst => todos = inst ) )
@@ -108,74 +119,78 @@ describe( 'whatodo - tests', () => {
 				.and.to.be.an( 'array' );
 		}
 	);
-	
+
 	it( 'should capture file "test.cc"',
 		() => {
 			const todo = todos.todos[ 0 ];
 			
 			expect( todo )
 				.to.have.property( 'file' )
-				.and.eq( join( todos.input, 'test.cc' ) );
+				.and.eq( testFile );
 		}
 	);
-	
+
 	it( 'should capture file size of "test.cc"',
 		() => {
 			const todo = todos.todos[ 0 ];
-			
+
 			expect( todos.fstats( todo.file ) )
 				.to.eventually.have.property( 'size' )
 				.and.eq( todo.size );
 		}
 	);
-	
+
 	it( 'should capture timing and be less than 150 microseconds (μs)',
 		() => {
 			const todo = todos.todos[ 0 ];
-			
+
 			expect( +( todo.timing.match( /\d+.\d+/ )[ 0 ] ) )
 				.to.be.lt( 150 );
 		}
 	);
-	
+
 	it( 'should save output to the specified output file',
 		() => {
 			expect( todos.save() ).to.eventually.eq( `${todos.outputFile} SAVED` );
 		}
 	);
-	
+
 	it( `should create file named ${todos.outputFile}`,
 		() => {
 			const outputExists = fs.existsSync( todos.outputFile );
 			expect( outputExists ).to.eq( true );
 		}
 	);
-	
+
 	it( 'should create file with correct parameters',
 		() => {
 			let outputData = fs.readFileSync( todos.outputFile );
 			outputData     = outputData.toString( 'utf8' );
 			outputData     = JSON.parse( outputData );
-			
+
 			expect( outputData ).to.deep.eq( todos.todos );
 		}
 	);
-	
+
 	it( 'should report help menu',
 		() => expect( spawnCLI( 'node', './cli.js', '-h' ) )
 			.to.eventually.have
 			.string( '-h, --help' )
 	);
-	
+
 	it( 'should report version',
 		() => expect( spawnCLI( 'node', './cli.js', '-v' ) )
 			.to.eventually.have
 			.string( `v${version}` )
 	);
-	
+
 	it( 'should report error if incorrect format is used',
 		() => expect( spawnCLI( 'node', './cli.js', './', '-f', 'JSONS' ) )
 			.to.eventually.have
 			.string( 'not a supported output' )
+	);
+	
+	after(
+		() => fs.createReadStream( copyBack ).pipe( fs.createWriteStream( testFile ) )
 	);
 } );

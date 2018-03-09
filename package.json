@@ -9,7 +9,8 @@
         "build": "node-gyp build",
         "configure": "node-gyp configure",
         "pretest": "node-gyp rebuild -C",
-        "dev": "npm run build && node -e \"console.log( new require( './index.js' ).searchFile( './test/test.cc', { todoPattern: '\\/\\/ ?TEST:?:?:? ?' } ) );\"",
+        "test_search": "npm run build && node -e \"console.log( new require( './index.js' ).searchFile( './test/test.cc', { todoPattern: '\\/\\/ ?TEST:?:?:? ?' } ) );\"",
+        "test_remove": "npm run build && node -e \"console.log( new require( './index.js' ).removeTodo( './test/test.cc', 6 ) );\"",
         "test": "mocha",
         "docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/ && cp ./todo.png docs/todo.png",
         "compile": "npm run configure && npm run build && ~/nodec --tmpdir=../.tmp -o todo ./cli.js"

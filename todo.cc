@@ -1,7 +1,7 @@
 #include "todo.h"
 
-std::string string_format( const std::string fmt, ... ) {
-    std::vector< char > str( 100, '\0' );
+string string_format( const string fmt, ... ) {
+    vector< char > str( 100, '\0' );
     va_list ap;
 
     while( 1 ) {
@@ -25,24 +25,24 @@ std::string string_format( const std::string fmt, ... ) {
     return str.data();
 }
 
-std::string v8StringToStd( Local<String> ref ) {
+string v8StringToStd( Local<String> ref ) {
 	String::Utf8Value arg( ref );
-	return std::string( *arg );
+	return string( *arg );
 }
 
-Local<String> stdStringToV8( Isolate *isolate, std::string ref ) {
+Local<String> stdStringToV8( Isolate *isolate, string ref ) {
 	return String::NewFromUtf8( isolate, ref.c_str() );
 }
 
 Local<Value> SearchLine( Isolate *isolate, string &line, int &i ) {
-    const std::regex rx( v8StringToStd( _TODO_PATTERN ) );
+    const regex rx( v8StringToStd( _TODO_PATTERN ) );
     bool containsTodo;
 
-    std::sregex_iterator ri = std::sregex_iterator( line.begin(), line.end(), rx );
+    sregex_iterator ri = sregex_iterator( line.begin(), line.end(), rx );
     Local<Object> match = Object::New( isolate );
 
-    for( ; ri != std::sregex_iterator(); ++ri ) {
-        const std::smatch m = *ri;
+    for( ; ri != sregex_iterator(); ++ri ) {
+        const smatch m = *ri;
 
         containsTodo = !m.empty();
 
@@ -63,9 +63,9 @@ Local<Value> SearchLine( Isolate *isolate, string &line, int &i ) {
             }
 
             match->Set( _PRIORITY,
-				ms.find( ":::" ) != std::string::npos ? _PRIORITY_HIGH :
-					ms.find( "::" ) != std::string::npos ? _PRIORITY_MID :
-						ms.find( ":" ) != std::string::npos ? _PRIORITY_LOW :
+				ms.find( ":::" ) != string::npos ? _PRIORITY_HIGH :
+					ms.find( "::" ) != string::npos ? _PRIORITY_MID :
+						ms.find( ":" ) != string::npos ? _PRIORITY_LOW :
 							_PRIORITY_UNKNOWN
 			);
 
@@ -101,7 +101,7 @@ void SearchFile( const FunctionCallbackInfo<Value> &args ) {
     _COMMENT          = stdStringToV8( isolate, "comment" );
     _EMPTY_STRING     = stdStringToV8( isolate, "" );
 
-    std::string fname = v8StringToStd( args[ 0 ]->ToString() );
+    string fname = v8StringToStd( args[ 0 ]->ToString() );
 
     Local<Context> context = isolate->GetCurrentContext();
     Local<Object> obj      = args[ 1 ]->ToObject( context ).ToLocalChecked();
@@ -109,7 +109,7 @@ void SearchFile( const FunctionCallbackInfo<Value> &args ) {
 
     for( int i = 0, l = props->Length(); i < l; i++ ) {
     	Local<Value> localKey = props->Get( i );
-    	std::string key = *String::Utf8Value( localKey );
+    	string key = *String::Utf8Value( localKey );
 
     	if( key == "todoPattern" ) {
     		_TODO_PATTERN = obj->Get( context, localKey ).ToLocalChecked()->ToString();
@@ -119,7 +119,7 @@ void SearchFile( const FunctionCallbackInfo<Value> &args ) {
     Local<Object> result = Object::New( isolate );
     Local<Array> todos   = Array::New( isolate );
 
-    auto begin = std::chrono::high_resolution_clock::now();
+    auto begin = chrono::high_resolution_clock::now();
 
     int i = 0,
         n = 0;
@@ -144,10 +144,10 @@ void SearchFile( const FunctionCallbackInfo<Value> &args ) {
         return;
     }
 
-    auto end     = std::chrono::high_resolution_clock::now();
-    auto tresult = std::chrono::duration_cast<std::chrono::nanoseconds>( end - begin ).count();
+    auto end     = chrono::high_resolution_clock::now();
+    auto tresult = chrono::duration_cast<chrono::nanoseconds>( end - begin ).count();
 
-    std::string time = tresult == 0 ? "0" :
+    string time = tresult == 0 ? "0" :
     	tresult < 1000 ? string_format( "%lld ns", tresult ) :
     		tresult < 1000000 ? string_format( "%.3f μs", ( double )tresult / 1e3 ) :
     			tresult < 1000000000 ? string_format( "%.3f ms", ( double )tresult / 1e6 ) :
@@ -160,8 +160,47 @@ void SearchFile( const FunctionCallbackInfo<Value> &args ) {
     args.GetReturnValue().Set( result );
 }
 
+string replace( string line, const string& substr, const string& replace_with )
+{
+    string::size_type pos = 0 ;
+    while( ( pos = line.find( substr, pos ) ) != string::npos )
+    {
+        line.replace( pos, substr.size(), replace_with ) ;
+        pos += replace_with.size() ;
+    }
+
+    return line;
+}
+
+string open_temp( string path, ofstream& f ) {
+    vector< char > dst_path( path.begin(), path.end() );
+
+    dst_path.push_back( '\0' );
+
+    int fd = mkstemp( &dst_path[ 0 ] );
+
+    if( fd != -1 ) {
+        path.assign( dst_path.begin(), dst_path.end() - 1 );
+        f.open( path.c_str(), ios_base::trunc | ios_base::out );
+    }
+
+    return path;
+}
+
+std::fstream& GotoLine(std::fstream& file, unsigned int num){
+    file.seekg( ios::beg );
+
+    for( unsigned int i = 0; i < num - 1; ++i ) {
+        file.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+    }
+
+    return file;
+}
+
 void RemoveTodo( const FunctionCallbackInfo<Value> &args ) {
     Isolate *isolate = args.GetIsolate();
+
+    bool status = true;
 
     if( !args[ 0 ]->IsString() ) {
     	isolate->ThrowException( Exception::TypeError( String::NewFromUtf8( isolate, "Argument Error - expected string [filename]" ) ) );
@@ -171,9 +210,65 @@ void RemoveTodo( const FunctionCallbackInfo<Value> &args ) {
     	return;
     }
 
-    // TODO:: add removeTodo functionality
+    _TODO_PATTERN = stdStringToV8( isolate, " ?\\/\\/ ?TODO:?:?:? ?" );
+    string fname  = v8StringToStd( args[ 0 ]->ToString() );
 
-    args.GetReturnValue().Set( result );
+    const char *tmpfile   = ( fname + ".tmp" ).c_str();
+    const char *inputfile = fname.c_str();
+
+	ifstream inputStream( inputfile );
+	ofstream outputStream( tmpfile );
+
+	string line;
+
+	int i = 0;
+	int pos = args[ 1 ]->IntegerValue();
+
+	while( getline( inputStream, line ) ) {
+		if( i == pos ) {
+			const regex rx( v8StringToStd( _TODO_PATTERN ) );
+			bool matchNotFound = true;
+
+			sregex_iterator ri = sregex_iterator( line.begin(), line.end(), rx );
+
+			for( ; ri != sregex_iterator(); ++ri ) {
+				const smatch m = *ri;
+
+				matchNotFound = m.empty();
+
+				if( !matchNotFound ) {
+					const string ms = m.str();
+
+					const int
+						llen = line.length(),
+						mpos = m.position();
+
+					string sub = line.substr( mpos, llen - mpos );
+					outputStream << line.replace( line.find( sub ), sub.length(), "" );
+				}
+			}
+
+			if( matchNotFound ) {
+				outputStream << line;
+			}
+		} else {
+			outputStream << line << endl;
+		}
+
+		i++;
+	}
+
+	inputStream.close();
+	outputStream.close();
+
+	const char *ftmp = ( fname + ".tmp" ).c_str();
+
+	int result = rename( ftmp, inputfile );
+	if( result != 0 ) {
+		status = false;
+	}
+
+	args.GetReturnValue().Set( status );
 }
 
 void init( Local<Object> exports ) {
