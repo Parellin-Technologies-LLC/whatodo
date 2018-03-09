@@ -1,28 +1,7 @@
 [
     {
-        "fname": "/Users/trashcan/GitHub/whatodo/test/test.cc",
+        "fname": "/Users/codebuddha/GitHub/whatodo/test/test.cc",
         "isDirectory": false,
-        "size": 69,
-        "todos": [
-            {
-                "priority": "LOW",
-                "line": 1,
-                "position": 0,
-                "comment": "low priority"
-            },
-            {
-                "priority": "MID",
-                "line": 2,
-                "position": 0,
-                "comment": "mid priority"
-            },
-            {
-                "priority": "HIGH",
-                "line": 3,
-                "position": 0,
-                "comment": "high priority"
-            }
-        ],
-        "timing": "88.114 μs"
+        "size": 169
     }
 ]

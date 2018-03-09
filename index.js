@@ -6,11 +6,11 @@
 'use strict';
 
 const
-	{ readdir, stat, writeFile } = require( 'fs' ),
-	{ resolve, join }            = require( 'path' ),
-	todo                         = require( 'bindings' )( 'todo' );
+	{ readdir, stat, writeFile }  = require( 'fs' ),
+	{ resolve, join }             = require( 'path' ),
+	todo                          = require( 'bindings' )( 'todo' ),
+	{ convertHighResolutionTime } = require( './utils' );
 
-// todo                         = require( './build/Release/todo' );
 // TODO:: write docs, installation, usage, etc
 // TODO: note syntax and priority specification for different priority levels
 // TODO: allow progress bar in CLI
@@ -23,13 +23,14 @@ class Whatodo
 		
 		this.initialized  = false;
 		this.dir          = resolve( opts.dir || process.cwd() );
-		this.ignore       = opts.ignore || [ 'node_modules', '.git', '.idea' ];
+		this.ignore       = opts.ignore || [ 'node_modules', '.git', '.idea', 'docs', 'build' ];
 		this.ignoreRx     = new RegExp( `^${this.ignore.join( '$|^' )}$` );
 		this.ignoreExts   = opts.ignoreExts || [ 'json', 'html', 'css', 'md' ];
 		this.ignoreExtsRx = new RegExp( `\\.(${this.ignoreExts.join( '|' )})+$` );
-		// this.todoPattern  = opts.todoPattern || '\\/\\/ ?TODO:?:?:?';
-		this.todoPattern  = opts.todoPattern || '\\/\\/ ?SUPO:?:?:? ?';
-		this.outputFile   = resolve( opts.outputFile || './TODOS.json' );
+		
+		this.todoPattern = opts.todoPattern || '\\/\\/ ?TEST:?:?:? ?';
+		
+		this.outputFile   = opts.outputFile ? resolve( opts.outputFile ) : null;
 		this.outputFormat = opts.outputFormat || Whatodo.JSON;
 		this.opts         = {
 			dir: this.dir,
@@ -48,6 +49,8 @@ class Whatodo
 	
 	run()
 	{
+		this.timeStart = process.hrtime();
+		
 		if( !this.initialized ) {
 			throw new Error( 'Error - Whatodo must be initialized before calling run' );
 		}
@@ -60,22 +63,27 @@ class Whatodo
 				
 				this.todos = this.files.filter(
 					item => {
-						console.log( item );
 						const result = this.searchFile( item.fname, this.opts );
-						// console.log( result );
-						
 						return result.todos.length ? result : false;
 					}
 				);
 				
+				this.todos.filesSearched = this.files.length;
+				
+				this.timeEnd = process.hrtime( this.timeStart );
+				this.timing  = convertHighResolutionTime( this.timeEnd, 2 );
 				res( this );
 			}
 		);
 	}
 	
-	save( fn )
+	save()
 	{
-		this.outputFile = this.outputFile || resolve( fn );
+		if( !this.outputFile ) {
+			return console.log( this.todos );
+			// return Promise.resolve( console.log( this.todos ) );
+		}
+		
 		return new Promise(
 			( res, rej ) => {
 				if( !this.todos.length ) {

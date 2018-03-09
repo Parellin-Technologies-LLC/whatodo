@@ -45,17 +45,21 @@ function reportError( e ) {
 ( function( args ) {
 	if( args.includes( '-v' ) || args.includes( '--version' ) ) {
 		return _version();
-	} else if( args.includes( '-h' ) || args.includes( '--help' ) ) {
+	} else if( args.includes( '-h' ) || args.includes( '--help' ) || args.length === 2 ) {
 		return _help();
 	}
 	
 	let
 		dir          = resolve( './' ),
-		outputFile   = resolve( './TODOS.json' ),
-		outputFormat = Whatodo.JSON;
+		outputFormat = Whatodo.JSON,
+		outputFile;
 	
 	if( args[ 2 ] ) {
 		dir = resolve( args[ 2 ] );
+	}
+	
+	if( args[ 3 ] ) {
+		outputFile = resolve( args[ 3 ] );
 	}
 	
 	if( args.includes( '-o' ) || args.includes( '--output' ) ) {
@@ -88,7 +92,7 @@ function reportError( e ) {
 		opts = { dir, outputFile, outputFormat };
 	
 	console.log( `collecting TODOs from ${opts.dir}` );
-	console.log( `saving collection to ${opts.outputFile}` );
+	// console.log( `saving collection to ${opts.outputFile}` );
 	
 	new Whatodo( opts )
 		.initialize()

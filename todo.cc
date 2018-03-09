@@ -84,9 +84,6 @@ Local<Value> SearchLine( Isolate *isolate, string &line, int &i ) {
 }
 
 void SearchFile( const FunctionCallbackInfo<Value> &args ) {
-	// TODO: REMOVE THIS:::
-	cout << endl;
-
     Isolate *isolate = args.GetIsolate();
 
     if( args.Length() < 1 || !args[ 0 ]->IsString() ) {
@@ -94,7 +91,7 @@ void SearchFile( const FunctionCallbackInfo<Value> &args ) {
     	return;
     }
 
-//    _TODO_PATTERN     = stdStringToV8( isolate, "\\/\\/ ?TODO:?:?:? ?" );
+    _TODO_PATTERN     = stdStringToV8( isolate, "\\/\\/ ?TODO:?:?:? ?" );
     _PRIORITY         = stdStringToV8( isolate, "priority" );
     _PRIORITY_HIGH    = stdStringToV8( isolate, "HIGH" );
     _PRIORITY_MID     = stdStringToV8( isolate, "MID" );
@@ -119,8 +116,6 @@ void SearchFile( const FunctionCallbackInfo<Value> &args ) {
     		_TODO_PATTERN = obj->Get( context, localKey ).ToLocalChecked()->ToString();
     	}
 	}
-
-	cout << v8StringToStd( _TODO_PATTERN ) << endl;
 
     Local<Object> result = Object::New( isolate );
     Local<Array> todos   = Array::New( isolate );
