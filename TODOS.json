@@ -1,27 +1,21 @@
-[
-    {
-        "file": "/Users/codebuddha/GitHub/whatodo/test/test.cc",
-        "timing": "115.328 μs",
-        "todos": [
-            {
-                "priority": "LOW",
-                "line": 1,
-                "position": 0,
-                "comment": "todo low priority"
-            },
-            {
-                "priority": "MID",
-                "line": 2,
-                "position": 0,
-                "comment": "todo mid priority"
-            },
-            {
-                "priority": "HIGH",
-                "line": 3,
-                "position": 0,
-                "comment": "todo high priority"
-            }
-        ],
-        "size": 182
-    }
-]
+/Users/trashcan/GitHub/whatodo/index.js  (2.277 ms - 5398 bytes)
+    [MID]  line: 14 - write docs, installation, usage, etc
+    [LOW]  line: 15 - note syntax and priority specification for different priority levels
+    [LOW]  line: 16 - allow progress bar in CLI
+    [HIGH] line: 17 - allow single file or directory TODO search
+
+/Users/trashcan/GitHub/whatodo/test/index.test.js  (2.208 ms - 5409 bytes)
+    [HIGH] line: 73 - REMOVE THIS" );
+
+/Users/trashcan/GitHub/whatodo/test/test.cc  (125.117 μs - 205 bytes)
+    [LOW]  line: 1 - todo low priority
+    [MID]  line: 2 - todo mid priority
+    [HIGH] line: 3 - todo high priority
+    [HIGH] line: 7 - REMOVE THIS
+
+/Users/trashcan/GitHub/whatodo/test/test_copy.cc  (120.790 μs - 205 bytes)
+    [LOW]  line: 1 - todo low priority
+    [MID]  line: 2 - todo mid priority
+    [HIGH] line: 3 - todo high priority
+    [HIGH] line: 7 - REMOVE THIS
+

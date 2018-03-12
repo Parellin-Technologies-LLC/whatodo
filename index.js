@@ -22,7 +22,8 @@ class Whatodo
 		opts = opts || {};
 		
 		this.initialized = false;
-		this.input       = resolve( opts.input || process.cwd() );
+		
+		this.input = resolve( opts.input || process.cwd() );
 		
 		this.ignore     = opts.ignore || [ 'node_modules', '.git', '.idea', 'docs', 'build' ];
 		this.ignoreExts = opts.ignoreExts || [ 'json', 'html', 'css', 'md' ];
@@ -33,27 +34,16 @@ class Whatodo
 		this.todoPattern = opts.todoPattern || '\\/\\/ ?TODO:?:?:? ?';
 		
 		this.outputFile   = opts.outputFile ? resolve( opts.outputFile ) : null;
-		this.outputFormat = opts.outputFormat || Whatodo.JSON;
-		this.opts         = {
-			input: this.input,
-			todoPattern: this.todoPattern
-		};
+		this.outputFormat = opts.outputFormat || Whatodo.FORMAT.JSON;
 	}
 	
 	initialize()
 	{
 		return this.fstats( this.input )
-			.then( d => {
-				if( d.isDirectory ) {
-					return this.readDirectory( this.input );
-				} else {
-					return [ d ];
-				}
-			} )
+			.then( d => d.isDirectory ? this.readDirectory( this.input ) : [ d ] )
 			.then( files => this.files = files )
 			.then( () => this.initialized = true )
-			.then( () => this )
-			.catch( console.error );
+			.then( () => this );
 	}
 	
 	run()
@@ -72,10 +62,14 @@ class Whatodo
 				
 				this.todos = this.files.reduce(
 					( r, item ) => {
-						const result = this.searchFile( item.file, this.opts );
-						result.size  = item.size;
+						const
+							result = this.searchFile( item.file, {
+								input: this.input,
+								todoPattern: this.todoPattern
+							} );
 						
 						if( result.todos.length ) {
+							result.size = item.size;
 							r.push( result );
 						}
 						
@@ -156,9 +150,51 @@ class Whatodo
 		return this.todos;
 	}
 	
-	print()
+	convertToStdoutFormat()
+	{
+		const todos = this.getTodos();
+		
+		return todos.reduce(
+			( r, item ) => {
+				r += `${item.file}  (${item.timing} - ${item.size} bytes)\n`;
+				
+				item.todos.forEach(
+					todo => {
+						const priority = todo.priority;
+						
+						r += '    ';
+						r += `[${priority}]`;
+						r += ' '.repeat( 5 - priority.length );
+						r += `line: ${todo.line}`;
+						r += ` - ${todo.comment}`;
+						r += '\n';
+					}
+				);
+				
+				return `${r}\n`;
+			}, ''
+		);
+	}
+	
+	printStdout()
+	{
+		return process.stdout.write( this.convertToStdoutFormat() );
+	}
+	
+	printJSON()
 	{
 		return process.stdout.write( JSON.stringify( this.getTodos(), null, 4 ) );
+	}
+	
+	print()
+	{
+		if( this.outputFormat === Whatodo.FORMAT.JSON ) {
+			return this.printJSON();
+		} else if( this.outputFormat === Whatodo.FORMAT.STDOUT ) {
+			return this.printStdout();
+		} else {
+			return console.error( `Format: ${this.outputFormat} not supported yet` );
+		}
 	}
 	
 	save( fn )
@@ -172,25 +208,29 @@ class Whatodo
 						return rej( `No TODOs found in ${this.outputFile}` );
 					}
 					
-					let format = this.todos;
+					let output = this.todos;
 					
-					if( this.outputFormat === Whatodo.JSON ) {
-						format = JSON.stringify( this.todos, null, 4 );
+					if( this.outputFormat === Whatodo.FORMAT.JSON ) {
+						output = JSON.stringify( this.todos, null, 4 );
+					} else if( this.outputFormat === Whatodo.FORMAT.STDOUT ) {
+						output = this.convertToStdoutFormat();
 					} else {
 						return console.error( `Format: ${this.outputFormat} not supported yet` );
 					}
 					
-					writeFile( this.outputFile, format,
+					writeFile( this.outputFile, output,
 						e => e ? rej( e ) : res( `${this.outputFile} SAVED` )
 					);
 				}
-			) )
-			.catch( console.error );
+			) );
 	}
 }
 
-Whatodo.XML  = 'XML';
-Whatodo.JSON = 'JSON';
-Whatodo.YAML = 'YAML';
+Whatodo.FORMAT = {
+	STDOUT: 'STDOUT',
+	JSON: 'JSON',
+	XML: 'XML',
+	YAML: 'YAML'
+};
 
 module.exports = Whatodo;

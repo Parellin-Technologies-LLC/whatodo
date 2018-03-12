@@ -24,13 +24,16 @@ function _help() {
 	console.log( '  ' );
 	console.log( '  Usage:' );
 	console.log( '  ' );
-	console.log( '    todo [directory to search] [...options]' );
+	console.log( '    todo [input file/folder] [output file] [...options]' );
 	console.log( '  ' );
 	console.log( '  Options:' );
 	console.log( '  ' );
-	console.log( '    -h, --help       show this help menu' );
-	console.log( '    -v, --version    show package version' );
-	console.log( '    -d, --dir        directory to check TODOs' );
+	console.log( '    -h, --help      show this help menu' );
+	console.log( '    -v, --version   show package version' );
+	console.log( '    -i, --input     directory or file to check TODOs  (default: ./)' );
+	console.log( '    -o, --output    file to save TODOs                (default: stdout)' );
+	console.log( '    -f, --format    format to save TODOs              (default: STDOUT)' );
+	console.log( '    -p, --pattern   pattern to capture TODOs          (default: "\\/\\/ ?TODO:?:?:? ?")' );
 	console.log( '  ' );
 }
 
@@ -38,72 +41,80 @@ function reportError( e ) {
 	console.log( '  ' );
 	console.log( '  Whatodo: Error Report' );
 	console.log( '  ' );
-	console.log( `    ${e.split( '\n' ).join( '\n    ' )}` );
+	console.log( `    ${( e.stackTrace || e.message || e ).split( '\n' ).join( '\n    ' )}` );
 	console.log( '  ' );
+	process.exit( 1 );
 }
 
 ( function( args ) {
 	if( args.includes( '-v' ) || args.includes( '--version' ) ) {
 		return _version();
-	} else if( args.includes( '-h' ) || args.includes( '--help' ) || args.length === 2 ) {
+	} else if( args.length <= 2 || args.includes( '-h' ) || args.includes( '--help' ) ) {
 		return _help();
 	}
 	
-	let
-		input          = resolve( './' ),
-		outputFormat = Whatodo.JSON,
-		outputFile;
-	
-	if( args[ 2 ] ) {
-		input = resolve( args[ 2 ] );
-	}
-	
-	if( args[ 3 ] ) {
-		outputFile = resolve( args[ 3 ] );
-	}
-	
-	if( args.includes( '-o' ) || args.includes( '--output' ) ) {
-		const
-			i = args.indexOf( '-o' ) === -1 ?
-				args.indexOf( '--output' ) + 1 :
-				args.indexOf( '-o' ) + 1;
-		
-		outputFile = resolve( args[ i ] );
-	}
-	
-	if( args.includes( '-f' ) || args.includes( '--format' ) ) {
-		const
-			i = args.indexOf( '-f' ) === -1 ?
-				args.indexOf( '--format' ) + 1 :
-				args.indexOf( '-f' ) + 1,
-			f = args[ i ];
-		
-		if( !Object.values( Whatodo ).includes( f ) ) {
-			return reportError(
-				`${f} is not a supported output format\n` +
-				`Supported Formats: ${Object.values( Whatodo ).join( ', ' )}`
-			);
-		}
-		
-		outputFormat = args[ i ];
-	}
-	
 	const
-		opts = { input, outputFile, outputFormat };
+		opts = args.reduce(
+			( r, item, i, arr ) => {
+				if( item === '-i' || item.includes( '--input' ) ) {
+					const input = arr[ i + 1 ];
+					
+					if( !input ) {
+						reportError( `Argument Error - must specify input for ${item}` );
+					} else {
+						r.input = resolve( input );
+					}
+				} else if( item === '-o' || item === '--output' ) {
+					const output = arr[ i + 1 ];
+					
+					if( !output ) {
+						reportError( `Argument Error - must specify output location for ${item}` );
+					} else {
+						r.outputFile = resolve( output );
+					}
+				} else if( item === '-f' || item === '--format' ) {
+					const format = arr[ i + 1 ];
+					
+					if( !format ) {
+						reportError(
+							`Argument Error - must specify format type for ${item} [ ${Object.values( Whatodo.FORMAT )
+								.join( ', ' )} ]`
+						);
+					} else if( !Object.values( Whatodo.FORMAT ).includes( format ) ) {
+						reportError(
+							`${format} is not a supported output format\n` +
+							`Supported Formats: [ ${Object.values( Whatodo.FORMAT ).join( ', ' )} ]`
+						);
+					} else {
+						r.outputFormat = format;
+					}
+				} else if( item === '-p' || item === '--pattern' ) {
+					const pattern = arr[ i + 1 ];
+					
+					if( !pattern ) {
+						reportError( `Argument Error - must specify pattern for ${item} [ "\\/\\/ ?TODO:?:?:? ?" ]` );
+					} else {
+						r.todoPattern = pattern;
+					}
+				}
+				
+				return r;
+			}, {
+				input: resolve( args[ 2 ] || './' ),
+				todoPattern: '\\/\\/ ?TODO:?:?:? ?',
+				outputFormat: Whatodo.FORMAT.STDOUT
+			}
+		);
 	
-	console.log( `collecting TODOs from ${opts.input}` );
-	
-	new Whatodo( opts )
+	return new Whatodo( opts )
 		.initialize()
 		.then( inst => inst.run() )
 		.then( inst => {
-			if( outputFile ) {
-				console.log( `saving collection to ${outputFile}` );
-				
+			if( opts.outputFile ) {
 				return inst.save();
 			} else {
 				return inst.print();
 			}
 		} )
-		.catch( console.error );
+		.catch( reportError );
 } )( process.argv );
