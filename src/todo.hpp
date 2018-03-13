@@ -10,7 +10,6 @@
 
 #include "string_format.cpp"
 #include "string_utils.cpp"
-#include "SearchLine.cpp"
 
 using v8::Context;
 using v8::Function;
