@@ -1,6 +1,6 @@
 {
     "name": "whatodo",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "description": "A TODO collector, organizer, and task manager",
     "main": "index.js",
     "scripts": {
@@ -12,8 +12,8 @@
         "test": "mocha",
         "docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/ && cp ./todo.png docs/todo.png",
         "compile": "rm ./todo && npm run configure && npm run build && ~/nodec --tmpdir=../.tmp -o todo ./cli.js",
-		"lint": "eslint .",
-		"preversion": "npm run lint && npm run docs"
+        "lint": "eslint .",
+        "preversion": "npm run lint && npm run docs"
     },
     "bin": {
         "whatodo": "./cli.js",
