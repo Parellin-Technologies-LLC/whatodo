@@ -14,7 +14,8 @@
         "compile": "rm ./todo && npm run configure && npm run build && ~/nodec --tmpdir=../.tmp -o todo ./cli.js"
     },
     "bin": {
-        "whatodo": "./cli.js"
+        "whatodo": "./cli.js",
+		"todo": "./cli.js"
     },
     "gypfile": true,
     "repository": {
