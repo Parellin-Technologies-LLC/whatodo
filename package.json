@@ -11,7 +11,9 @@
         "pretest": "node-gyp rebuild -C",
         "test": "mocha",
         "docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/ && cp ./todo.png docs/todo.png",
-        "compile": "rm ./todo && npm run configure && npm run build && ~/nodec --tmpdir=../.tmp -o todo ./cli.js"
+        "compile": "rm ./todo && npm run configure && npm run build && ~/nodec --tmpdir=../.tmp -o todo ./cli.js",
+		"lint": "eslint .",
+		"preversion": "npm run lint && npm run docs"
     },
     "bin": {
         "whatodo": "./cli.js",

@@ -7,10 +7,7 @@
 'use strict';
 
 const
-	{
-		resolve,
-		basename
-	}            = require( 'path' ),
+	{ resolve }  = require( 'path' ),
 	{ version }  = require( './package.json' ),
 	{ isOption } = require( './utils' ),
 	Whatodo      = require( './index' );
@@ -28,7 +25,7 @@ function _help() {
 	console.log( '  ' );
 	console.log( '  Usage:' );
 	console.log( '  ' );
-	console.log( '    todo [input file/folder] [output file] [...options]' );
+	console.log( '    todo [input file/folder] [...options]' );
 	console.log( '  ' );
 	console.log( '  Options:' );
 	console.log( '  ' );
