@@ -1,6 +1,6 @@
 {
     "name": "whatodo",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "description": "A TODO collector, organizer, and task manager",
     "main": "index.js",
     "scripts": {
@@ -15,7 +15,7 @@
     },
     "bin": {
         "whatodo": "./cli.js",
-		"todo": "./cli.js"
+        "todo": "./cli.js"
     },
     "gypfile": true,
     "repository": {
