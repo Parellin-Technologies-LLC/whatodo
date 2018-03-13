@@ -1,72 +1,129 @@
-#include <napi.h>
-#include <iostream>
-#include <fstream>
-#include <regex>
-#include <string>
-#include <chrono>
+#include "todo.h"
 
-using namespace std;
+string string_format( const string fmt, ... ) {
+    vector< char > str( 100, '\0' );
+    va_list ap;
 
-// TODO: allow regex override
-Napi::Value SearchLine( Napi::Env &env, string &line, int &i ) {
-    const std::regex rx( "\\/\\/ ?TODO:?:?:? ?" );
-    bool matchFound;
+    while( 1 ) {
+        va_start( ap, fmt );
 
-    std::sregex_iterator ri = std::sregex_iterator( line.begin(), line.end(), rx );
-    Napi::Object match;
+        auto n = vsnprintf( str.data(), str.size(), fmt.c_str(), ap );
 
-    for( ; ri != std::sregex_iterator(); ++ri ) {
-        const std::smatch m = *ri;
+        va_end( ap );
 
-        matchFound = m.empty();
+        if( ( n > -1 ) && ( size_t( n ) < str.size() ) ) {
+            return str.data();
+        }
 
-        if( !matchFound ) {
+        if( n > -1 ) {
+            str.resize( n + 1 );
+		} else {
+            str.resize( str.size() * 2 );
+		}
+    }
+
+    return str.data();
+}
+
+string v8StringToStd( Local<String> ref ) {
+	String::Utf8Value arg( ref );
+	return string( *arg );
+}
+
+Local<String> stdStringToV8( Isolate *isolate, string ref ) {
+	return String::NewFromUtf8( isolate, ref.c_str() );
+}
+
+Local<Value> SearchLine( Isolate *isolate, string &line, int &i ) {
+    const regex rx( v8StringToStd( _TODO_PATTERN ) );
+    bool containsTodo;
+
+    sregex_iterator ri = sregex_iterator( line.begin(), line.end(), rx );
+    Local<Object> match = Object::New( isolate );
+
+    for( ; ri != sregex_iterator(); ++ri ) {
+        const smatch m = *ri;
+
+        containsTodo = !m.empty();
+
+        if( containsTodo ) {
             const string ms = m.str();
+
             const int
-                llen        = line.length(),
-                len         = ms.length(),
-                pos         = m.position(),
-                cpos        = pos + len;
+                llen = line.length(),
+                len  = ms.length(),
+                pos  = m.position(),
+                cpos = pos + len;
 
-            const string comment = line.substr( cpos, llen - cpos );
+            Local<String> comment = stdStringToV8( isolate, line.substr( cpos, llen - cpos ) );
 
-            if( comment == "" ) {
+            if( comment == _EMPTY_STRING ) {
+            	containsTodo = false;
                 break;
             }
 
-            match = Napi::Object::New( env );
+            match->Set( _PRIORITY,
+				ms.find( ":::" ) != string::npos ? _PRIORITY_HIGH :
+					ms.find( "::" ) != string::npos ? _PRIORITY_MID :
+						ms.find( ":" ) != string::npos ? _PRIORITY_LOW :
+							_PRIORITY_UNKNOWN
+			);
 
-            match.Set( "priority",
-                ms.find( ":::" ) != std::string::npos ? "HIGH" :
-                    ms.find( "::" ) != std::string::npos ? "MID" :
-                        ms.find( ":" ) != std::string::npos ? "LOW" :
-                            "UNKNOWN"
-            );
-
-            match.Set( "line", i );
-            match.Set( "position", pos );
-            match.Set( "comment", comment );
+			match->Set( _LINE, Number::New( isolate, i ) );
+			match->Set( _POSITION, Number::New( isolate, pos ) );
+			match->Set( _COMMENT, comment );
         }
     }
 
-    return !matchFound ? match : Napi::Value();
+    if( containsTodo ) {
+    	return match;
+    } else {
+    	return Null( isolate );
+    }
 }
 
-Napi::Value SearchFile( const Napi::CallbackInfo &args ) {
-    Napi::Env env = args.Env();
-    std::string fname = args[ 0 ].As<Napi::String>();
+void SearchFile( const FunctionCallbackInfo<Value> &args ) {
+    Isolate *isolate = args.GetIsolate();
 
-    if( !args[ 0 ].IsString() ) {
-        Napi::TypeError::New( env, "Argument Error - expected string" ).ThrowAsJavaScriptException();
-        return env.Null();
+    if( args.Length() < 1 || !args[ 0 ]->IsString() ) {
+    	isolate->ThrowException( Exception::TypeError( String::NewFromUtf8( isolate, "Argument Error - expected string for [filename]" ) ) );
+    	return;
     }
 
-    Napi::Array todos = Napi::Array::New( env );
+    _TODO_PATTERN     = stdStringToV8( isolate, "\\/\\/ ?TODO:?:?:? ?" );
+    _PRIORITY         = stdStringToV8( isolate, "priority" );
+    _PRIORITY_HIGH    = stdStringToV8( isolate, "HIGH" );
+    _PRIORITY_MID     = stdStringToV8( isolate, "MID" );
+    _PRIORITY_LOW     = stdStringToV8( isolate, "LOW" );
+    _PRIORITY_UNKNOWN = stdStringToV8( isolate, "UNKNOWN" );
+    _LINE             = stdStringToV8( isolate, "line" );
+    _POSITION         = stdStringToV8( isolate, "position" );
+    _COMMENT          = stdStringToV8( isolate, "comment" );
+    _EMPTY_STRING     = stdStringToV8( isolate, "" );
 
-    auto begin = std::chrono::high_resolution_clock::now();
+    string fname = v8StringToStd( args[ 0 ]->ToString() );
+
+    Local<Context> context = isolate->GetCurrentContext();
+    Local<Object> obj      = args[ 1 ]->ToObject( context ).ToLocalChecked();
+    Local<Array> props     = obj->GetOwnPropertyNames( context ).ToLocalChecked();
+
+    for( int i = 0, l = props->Length(); i < l; i++ ) {
+    	Local<Value> localKey = props->Get( i );
+    	string key = *String::Utf8Value( localKey );
+
+    	if( key == "todoPattern" ) {
+    		_TODO_PATTERN = obj->Get( context, localKey ).ToLocalChecked()->ToString();
+    	}
+	}
+
+    Local<Object> result = Object::New( isolate );
+    Local<Array> todos   = Array::New( isolate );
+
+    auto begin = chrono::high_resolution_clock::now();
 
     int i = 0,
         n = 0;
+
     string line;
     ifstream file( fname );
 
@@ -74,33 +131,149 @@ Napi::Value SearchFile( const Napi::CallbackInfo &args ) {
         while( getline( file, line ) )
         {
             ++i;
-            Napi::Value to = SearchLine( env, line, i );
+            Local<Value> to = SearchLine( isolate, line, i );
 
-            if( !to.IsEmpty() ) {
-                todos[ n++ ] = to;
+            if( !to->IsNull() ) {
+                todos->Set( n++, to );
             }
         }
 
         file.close();
     } else {
-        Napi::TypeError::New( env, "Argument Error - unable to open file" ).ThrowAsJavaScriptException();
-        return env.Null();
+    	isolate->ThrowException( Exception::TypeError( String::NewFromUtf8( isolate, "Argument Error - unable to open file" ) ) );
+        return;
     }
 
-    auto end = std::chrono::high_resolution_clock::now();
+    auto end     = chrono::high_resolution_clock::now();
+    auto tresult = chrono::duration_cast<chrono::nanoseconds>( end - begin ).count();
 
-    todos[ "time" ] = std::chrono::duration_cast<std::chrono::nanoseconds>( end - begin ).count();
+    string time = tresult == 0 ? "0" :
+    	tresult < 1000 ? string_format( "%lld ns", tresult ) :
+    		tresult < 1000000 ? string_format( "%.3f μs", ( double )tresult / 1e3 ) :
+    			tresult < 1000000000 ? string_format( "%.3f ms", ( double )tresult / 1e6 ) :
+    				string_format( "%.3f s", ( double )tresult / 1e9 );
 
-    return todos;
+    result->Set( stdStringToV8( isolate, "file" ), stdStringToV8( isolate, fname ) );
+    result->Set( stdStringToV8( isolate, "timing" ), stdStringToV8( isolate, time ) );
+    result->Set( stdStringToV8( isolate, "todos" ), todos );
+
+    args.GetReturnValue().Set( result );
 }
 
-Napi::Object Init( Napi::Env env, Napi::Object exports ) {
-    exports.Set(
-        Napi::String::New( env, "searchFile" ),
-        Napi::Function::New( env, SearchFile )
-    );
+string replace( string line, const string& substr, const string& replace_with )
+{
+    string::size_type pos = 0 ;
+    while( ( pos = line.find( substr, pos ) ) != string::npos )
+    {
+        line.replace( pos, substr.size(), replace_with ) ;
+        pos += replace_with.size() ;
+    }
 
-    return exports;
+    return line;
 }
 
-NODE_API_MODULE( todo, Init );
+string open_temp( string path, ofstream& f ) {
+    vector< char > dst_path( path.begin(), path.end() );
+
+    dst_path.push_back( '\0' );
+
+    int fd = mkstemp( &dst_path[ 0 ] );
+
+    if( fd != -1 ) {
+        path.assign( dst_path.begin(), dst_path.end() - 1 );
+        f.open( path.c_str(), ios_base::trunc | ios_base::out );
+    }
+
+    return path;
+}
+
+std::fstream& GotoLine(std::fstream& file, unsigned int num){
+    file.seekg( ios::beg );
+
+    for( unsigned int i = 0; i < num - 1; ++i ) {
+        file.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+    }
+
+    return file;
+}
+
+void RemoveTodo( const FunctionCallbackInfo<Value> &args ) {
+    Isolate *isolate = args.GetIsolate();
+
+    bool status = true;
+
+    if( !args[ 0 ]->IsString() ) {
+    	isolate->ThrowException( Exception::TypeError( String::NewFromUtf8( isolate, "Argument Error - expected string [filename]" ) ) );
+    	return;
+    } else if( !args[ 1 ]->IsNumber() ) {
+    	isolate->ThrowException( Exception::TypeError( String::NewFromUtf8( isolate, "Argument Error - expected number [line]" ) ) );
+    	return;
+    }
+
+    _TODO_PATTERN = stdStringToV8( isolate, " ?\\/\\/ ?TODO:?:?:? ?" );
+    string fname  = v8StringToStd( args[ 0 ]->ToString() );
+
+    const char *tmpfile   = ( fname + ".tmp" ).c_str();
+    const char *inputfile = fname.c_str();
+
+	ifstream inputStream( inputfile );
+	ofstream outputStream( tmpfile );
+
+	string line;
+
+	int i = 0;
+	int pos = args[ 1 ]->IntegerValue();
+
+	while( getline( inputStream, line ) ) {
+		if( i == pos ) {
+			const regex rx( v8StringToStd( _TODO_PATTERN ) );
+			bool matchNotFound = true;
+
+			sregex_iterator ri = sregex_iterator( line.begin(), line.end(), rx );
+
+			for( ; ri != sregex_iterator(); ++ri ) {
+				const smatch m = *ri;
+
+				matchNotFound = m.empty();
+
+				if( !matchNotFound ) {
+					const string ms = m.str();
+
+					const int
+						llen = line.length(),
+						mpos = m.position();
+
+					string sub = line.substr( mpos, llen - mpos );
+					outputStream << line.replace( line.find( sub ), sub.length(), "" );
+				}
+			}
+
+			if( matchNotFound ) {
+				outputStream << line;
+			}
+		} else {
+			outputStream << line << endl;
+		}
+
+		i++;
+	}
+
+	inputStream.close();
+	outputStream.close();
+
+	const char *ftmp = ( fname + ".tmp" ).c_str();
+
+	int result = rename( ftmp, inputfile );
+	if( result != 0 ) {
+		status = false;
+	}
+
+	args.GetReturnValue().Set( status );
+}
+
+void init( Local<Object> exports ) {
+	NODE_SET_METHOD( exports, "searchFile", SearchFile );
+	NODE_SET_METHOD( exports, "removeTodo", RemoveTodo );
+}
+
+NODE_MODULE( NODE_GYP_MODULE_NAME, init );

@@ -1,28 +1,27 @@
 [
     {
-        "fname": "/Users/trashcan/GitHub/whatodo/test/test.cc",
-        "isDirectory": false,
-        "size": 69,
+        "file": "/Users/trashcan/GitHub/whatodo/test/test.cc",
+        "timing": "131.600 μs",
         "todos": [
             {
                 "priority": "LOW",
                 "line": 1,
                 "position": 0,
-                "comment": "low priority"
+                "comment": "todo low priority"
             },
             {
                 "priority": "MID",
                 "line": 2,
                 "position": 0,
-                "comment": "mid priority"
+                "comment": "todo mid priority"
             },
             {
                 "priority": "HIGH",
                 "line": 3,
                 "position": 0,
-                "comment": "high priority"
+                "comment": "todo high priority"
             }
         ],
-        "timing": "88.114 μs"
+        "size": 182
     }
 ]
