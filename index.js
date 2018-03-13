@@ -6,15 +6,18 @@
 'use strict';
 
 const
-	{ readdir, stat, writeFile }  = require( 'fs' ),
-	{ resolve, join }             = require( 'path' ),
-	todo                          = require( 'bindings' )( 'todo' ),
-	{ convertHighResolutionTime } = require( './utils' );
+	{ readdir, stat, writeFile } = require( 'fs' ),
+	{ resolve, join }            = require( 'path' ),
+	todo                         = require( 'bindings' )( 'todo' ),
+	{
+		convertHighResolutionTime,
+		bytesToSize,
+		sizeToBytes
+	}                            = require( './utils' );
 
 // TODO:: write docs, installation, usage, etc
 // TODO: note syntax and priority specification for different priority levels
 // TODO: allow progress bar in CLI
-// TODO::: allow single file or directory TODO search
 class Whatodo
 {
 	constructor( opts )
@@ -35,6 +38,8 @@ class Whatodo
 		
 		this.outputFile   = opts.outputFile ? resolve( opts.outputFile ) : null;
 		this.outputFormat = opts.outputFormat || Whatodo.FORMAT.JSON;
+		
+		this.maximumFileSize = sizeToBytes( opts.maximumFileSize || '1 MiB' );
 	}
 	
 	initialize()
@@ -62,6 +67,11 @@ class Whatodo
 				
 				this.todos = this.files.reduce(
 					( r, item ) => {
+						if( item.skip ) {
+							r.push( item );
+							return r;
+						}
+						
 						const
 							result = this.searchFile( item.file, {
 								input: this.input,
@@ -134,7 +144,9 @@ class Whatodo
 							.then(
 								info => info.isDirectory ?
 									this.readDirectory( info.file, files ) :
-									files.push( info )
+									files.push(
+										info.size < this.maximumFileSize ? info : ( info.skip = true, info )
+									)
 							)
 							.catch( rej );
 					} )
@@ -158,18 +170,22 @@ class Whatodo
 			( r, item ) => {
 				r += `${item.file}  (${item.timing} - ${item.size} bytes)\n`;
 				
-				item.todos.forEach(
-					todo => {
-						const priority = todo.priority;
-						
-						r += '    ';
-						r += `[${priority}]`;
-						r += ' '.repeat( 5 - priority.length );
-						r += `line: ${todo.line}`;
-						r += ` - ${todo.comment}`;
-						r += '\n';
-					}
-				);
+				if( item.skip ) {
+					r += `    Item Skipped - Maximum File Size Exceeded ${bytesToSize( this.maximumFileSize )}\n`;
+				} else {
+					item.todos.forEach(
+						todo => {
+							const priority = todo.priority;
+							
+							r += '    ';
+							r += `[${priority}]`;
+							r += ' '.repeat( 5 - priority.length );
+							r += `line: ${todo.line}`;
+							r += ` - ${todo.comment}`;
+							r += '\n';
+						}
+					);
+				}
 				
 				return `${r}\n`;
 			}, ''

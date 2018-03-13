@@ -32,8 +32,9 @@ function _help() {
 	console.log( '    -v, --version   show package version' );
 	console.log( '    -i, --input     directory or file to check TODOs  (default: ./)' );
 	console.log( '    -o, --output    file to save TODOs                (default: stdout)' );
-	console.log( '    -f, --format    format to save TODOs              (default: STDOUT)' );
+	console.log( '    -f, --format    format to save TODOs              (default: STDOUT, "JSON")' );
 	console.log( '    -p, --pattern   pattern to capture TODOs          (default: "\\/\\/ ?TODO:?:?:? ?")' );
+	console.log( '    -m, --maximum   maximum file size allowed         (default: "1 MB", 512KiB)' );
 	console.log( '  ' );
 }
 
@@ -95,6 +96,14 @@ function reportError( e ) {
 						reportError( `Argument Error - must specify pattern for ${item} [ "\\/\\/ ?TODO:?:?:? ?" ]` );
 					} else {
 						r.todoPattern = pattern;
+					}
+				} else if( item === '-m' || item === '--maximum' ) {
+					const maximum = arr[ i + 1 ];
+					
+					if( !maximum ) {
+						reportError( `Argument Error - must specify maximum value for ${item} [ 1MB ]` );
+					} else {
+						r.maximumFileSize = maximum;
 					}
 				}
 				
