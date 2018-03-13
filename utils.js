@@ -106,8 +106,13 @@ function sizeToBytes( bytes ) {
 						( match = /^(\d+) ?(?:B|Bytes?)$/gim.exec( bytes ) ) ? +match[ 1 ] : 0;
 }
 
+function isOption( arg ) {
+	return /-+\w+/.test( arg );
+}
+
 module.exports = {
 	convertHighResolutionTime,
 	bytesToSize,
-	sizeToBytes
+	sizeToBytes,
+	isOption
 };

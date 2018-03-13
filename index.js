@@ -145,7 +145,7 @@ class Whatodo
 								info => info.isDirectory ?
 									this.readDirectory( info.file, files ) :
 									files.push(
-										info.size < this.maximumFileSize ? info : ( info.skip = true, info )
+										info.size <= this.maximumFileSize ? info : ( info.skip = true, info )
 									)
 							)
 							.catch( rej );
@@ -245,8 +245,9 @@ class Whatodo
 Whatodo.FORMAT = {
 	STDOUT: 'STDOUT',
 	JSON: 'JSON',
-	XML: 'XML',
-	YAML: 'YAML'
+	XML: 'XML',   // NOT SUPPORTED YET
+	YAML: 'YAML', // NOT SUPPORTED YET
+	HTML: 'HTML'  // NOT SUPPORTED YET
 };
 
 module.exports = Whatodo;

@@ -7,9 +7,13 @@
 'use strict';
 
 const
-	{ resolve } = require( 'path' ),
-	{ version } = require( './package.json' ),
-	Whatodo     = require( './index' );
+	{
+		resolve,
+		basename
+	}            = require( 'path' ),
+	{ version }  = require( './package.json' ),
+	{ isOption } = require( './utils' ),
+	Whatodo      = require( './index' );
 
 function _version() {
 	console.log( `v${version}` );
@@ -50,7 +54,7 @@ function reportError( e ) {
 ( function( args ) {
 	if( args.includes( '-v' ) || args.includes( '--version' ) ) {
 		return _version();
-	} else if( args.length <= 2 || args.includes( '-h' ) || args.includes( '--help' ) ) {
+	} else if( args.includes( '-h' ) || args.includes( '--help' ) ) {
 		return _help();
 	}
 	
@@ -109,7 +113,7 @@ function reportError( e ) {
 				
 				return r;
 			}, {
-				input: resolve( args[ 2 ] || './' ),
+				input: resolve( isOption( args[ 2 ] ) ? args[ 2 ] : './' ),
 				todoPattern: '\\/\\/ ?TODO:?:?:? ?',
 				outputFormat: Whatodo.FORMAT.STDOUT
 			}
