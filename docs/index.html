@@ -52,59 +52,106 @@
     </a>
 </p>
 
-<h1>whatodo</h1><p><a href="https://whatodo.io">https://whatodo.io</a> (coming soon)</p>
+<h1><a name="top">whatodo</a></h1>
+
+<ul>
+<li><a href="#install">Install</a></li>
+<li><a href="#apiusage">API Usage</a></li>
+<li><a href="#cliusage">CLI Usage</a></li>
+</ul>
+<p><a href="https://whatodo.io">https://whatodo.io</a> (coming soon)</p>
 <p>A TODO collector, organizer, and task manager</p>
 <p>Do you write <code>TODO</code> comments all over your code?</p>
 <p>I certainly do.</p>
 <p>Wouldn't it be nice to pull those TODOs out and have priorities, links to where to your code, all ready to go?</p>
-<h3>Install</h3><p><code>npm i -g whatodo</code></p>
-<h3>Usage</h3><p>List your TODO comments throughout your code</p>
-<p>When ready, run the <code>todo</code> cli to collect your comments:</p>
-<pre class="prettyprint source"><code>  Whatodo
-
-  Whatodo is a NPM Module designed to quickly and efficiently extract your
-  TODO comments from your code and organize them in a simple & readable format
-
-  Options:
-
-    -h, --help       show this help menu
-    -v, --version    show package version
-    -d, --dir        directory to check TODOs
-    -o, --output     output file to save TODOs</code></pre><p>List priorities:</p>
+<h3><a name="install" href="#top">Install</a></h3><p><code>npm i -g whatodo</code></p>
+<p>List priorities:</p>
 <ul>
 <li><code>// TODO: low priority</code></li>
 <li><code>// TODO:: mid priority</code></li>
 <li><code>// TODO::: high priority</code></li>
 </ul>
-<p>When you want to collect your TODOs run:</p>
-<p><code>todo [directory] [..options]</code></p>
-<p>Output:</p>
+<p>NPM Problems?</p>
+<p>Try this: <code>sudo npm install -g whatodo --unsafe-perm=true --allow-root</code></p>
+<h3><a name="apiusage" href="#top">API Usage</a></h3><p>Options:</p>
+<ul>
+<li><code>input</code> - input file or directory</li>
+<li><code>ignore</code> - array of files or directories to ignore</li>
+<li><code>ignoreExts</code> - array of extensions to ignore</li>
+<li><code>todoPattern</code> - regex pattern to search for (default: <code>'\\/\\/ ?TODO:?:?:? ?'</code>)</li>
+<li><code>outputFile</code> - specify the file where the todos are saved</li>
+<li><code>outputFormat</code> - format to export todos (<code>JSON</code>, <code>STDOUT</code>)</li>
+<li><code>maximumFileSize</code> - maximum file size to search (<code>1 KiB</code>, <code>1 Megabyte</code>, <code>2 MB</code>)</li>
+</ul>
+<pre class="prettyprint source"><code>'use strict';
+
+const Whatodo = require( 'whatodo' );
+
+new Whatodo( {
+    input: 'index.js',
+    ignore: [ 'node_modules', '.git', '.idea', 'docs', 'build' ],
+    ignoreExts: [ 'json', 'html', 'css', 'md' ],
+    todoPattern: '\\/\\/ ?TODO:?:?:? ?',
+    outputFile: 'todos.json',
+    outputFormat: 'JSON',
+    maximumFileSize: '1 MiB'
+} )
+    .initialize()
+    .then( inst => inst.run() )
+    .then( inst => inst.save() )
+    .catch( console.error );</code></pre><h3><a name="cliusage" href="#top">CLI Usage</a></h3><p>Write your TODO comments throughout your code</p>
+<p>When ready, run the <code>todo</code> cli to collect your comments:</p>
+<h3><code>todo -h</code></h3><pre class="prettyprint source"><code>
+  Whatodo v0.3.0
+
+  Whatodo is a NPM Module designed to quickly and efficiently extract your
+  TODO comments from your code and organize them in a simple & readable format
+
+  Usage:
+
+    todo [input file/folder] [...options]
+
+  Options:
+
+    -h, --help      show this help menu
+    -v, --version   show package version
+    -i, --input     directory or file to check TODOs  (default: ./)
+    -o, --output    file to save TODOs                (default: stdout)
+    -f, --format    format to save TODOs              (default: STDOUT, &quot;JSON&quot;)
+    -p, --pattern   pattern to capture TODOs          (default: &quot;\/\/ ?TODO:?:?:? ?&quot;)
+    -m, --maximum   maximum file size allowed         (default: &quot;1 MB&quot;, 512KiB)</code></pre><h3><code>todo ./ -f JSON -o todos.json -m 1KiB -p &quot;\/\/ ?TEST:?:?:? ?&quot;</code></h3><p>Specify:</p>
+<ul>
+<li>JSON formatted output</li>
+<li>Output file <code>todos.json</code></li>
+<li>Set a maximum search of 1 Kibibyte files</li>
+<li>TODO search regex <code>&quot;\/\/ ?TEST:?:?:? ?&quot;</code></li>
+</ul>
+<p>Creates a <code>todos.json</code> file:</p>
 <pre class="prettyprint source"><code>[
     {
-        &quot;fname&quot;: &quot;/whatodo/README.md&quot;,
-        &quot;isDirectory&quot;: false,
-        &quot;size&quot;: 155,
+        &quot;file&quot;: &quot;whatodo/test/test.cc&quot;,
+        &quot;timing&quot;: &quot;120.263 μs&quot;,
         &quot;todos&quot;: [
             {
                 &quot;priority&quot;: &quot;LOW&quot;,
-                &quot;line&quot;: 14,
-                &quot;position&quot;: 3,
-                &quot;comment&quot;: &quot;low priority&quot;
+                &quot;line&quot;: 1,
+                &quot;position&quot;: 0,
+                &quot;comment&quot;: &quot;todo low priority&quot;
             },
             {
                 &quot;priority&quot;: &quot;MID&quot;,
-                &quot;line&quot;: 15,
-                &quot;position&quot;: 3,
-                &quot;comment&quot;: &quot;mid priority&quot;
+                &quot;line&quot;: 2,
+                &quot;position&quot;: 0,
+                &quot;comment&quot;: &quot;todo mid priority&quot;
             },
             {
                 &quot;priority&quot;: &quot;HIGH&quot;,
-                &quot;line&quot;: 16,
-                &quot;position&quot;: 3,
-                &quot;comment&quot;: &quot;high priority&quot;
+                &quot;line&quot;: 3,
+                &quot;position&quot;: 0,
+                &quot;comment&quot;: &quot;todo high priority&quot;
             }
         ],
-        &quot;timing&quot;: &quot;156.803 μs&quot;
+        &quot;size&quot;: 182
     }
 ]</code></pre></article>
     </section>
@@ -117,13 +164,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#bytesToSize">bytesToSize</a></li><li><a href="global.html#convertHighResolutionTime">convertHighResolutionTime</a></li><li><a href="global.html#sizeToBytes">sizeToBytes</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Mar 05 2018 06:16:24 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Mar 13 2018 19:16:59 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

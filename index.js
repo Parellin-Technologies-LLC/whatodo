@@ -234,7 +234,7 @@ class Whatodo
 					}
 					
 					writeFile( this.outputFile, output,
-						e => e ? rej( e ) : res( `${this.outputFile} SAVED` )
+						e => e ? rej( e ) : res( this )
 					);
 				}
 			) );

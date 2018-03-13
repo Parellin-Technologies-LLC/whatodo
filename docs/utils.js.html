@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: utils.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: utils.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** ****************************************************************************************************
+ * File: utils.js
+ * Project: whatodo
+ * @author Nick Soggin &lt;iSkore@users.noreply.github.com> on 08-Mar-2018
+ *******************************************************************************************************/
+'use strict';
+
+/**
+ * @typedef {number[]} hrtime
+ * @description
+ *     A "tuple" assumed to be a result of calling for high resolution time &lt;code>process.hrtime&lt;/code>&lt;br/>
+ *     typically, a resulting &lt;code>hrtime&lt;/code> should be the returned value of
+ *     &lt;code>process.hrtime( process.hrtime() );&lt;/code> where the inner &lt;code>hrtime&lt;/code>
+ *     is likely called before a function is run to calculate the time it took to run a process.
+ *     tuple is assumed to be in nanoseconds
+ * @example
+ * [ 22727, 841838045 ]
+ */
+
+/**
+ * @typedef {number} bytes
+ * @description
+ *     A number expected to be evaluated as bytes
+ * @example
+ * 1024
+ */
+
+/**
+ * convertHighResolutionTime
+ * @description
+ * converts a "final" high resolution time stamp into nanoseconds
+ * @param {hrtime} hrtime - high resolution time tuple returned from &lt;code>process.hrtime&lt;/code>
+ * @returns {number}
+ * nanoseconds based on passed in high resolution time tuple
+ * @example
+ * const
+ *     start = process.hrtime(),
+ *     end   = process.hrtime( start );
+ *
+ * convertHighResolutionTime( end ); // -> 2000
+ */
+function convertHighResolutionTime( hrtime ) {
+	if( !Array.isArray( hrtime ) || hrtime.length !== 2 ) {
+		throw new Error( 'Argument Error - expected hrtime_tuple' );
+	}
+	
+	return ( hrtime[ 0 ] * 1e9 ) + hrtime[ 1 ];
+}
+
+/**
+ * bytesToSize
+ * @description
+ * Convert bytes to human readable format
+ * @param {bytes} bytes - unit in bytes to parse
+ * @returns {string} - pretty string in the format [n unit]
+ * @example
+ * bytesToSize( 1073741824 ) // -> 1 GB
+ */
+function bytesToSize( bytes ) {
+	if( !bytes ) {
+		return '0 Byte';
+	}
+	
+	const
+		sizes = [ 'Bytes', 'KB', 'MB', 'GB', 'TB' ],
+		i     = ~~( Math.log( bytes ) / Math.log( 1024 ) );
+	
+	return Math.round( bytes / Math.pow( 1024, i ) ) + ' ' + sizes[ i ];
+}
+
+/**
+ * sizeToBytes
+ * @description
+ * Convert human readable format to bytes
+ * &lt;h5>Recognized conversion units:&lt;/h5>
+ * &lt;table class="params">
+ *     &lt;thead>&lt;tr>&lt;th>(Unit)&lt;/th>&lt;th>[Standard Base 10]&lt;/th>&lt;th>[Digital Storage Unit 2ⁿ]&lt;/th>&lt;/tr>&lt;/thead>
+ *     &lt;tbody>
+ *         &lt;tr>&lt;td>(B)&lt;/td>&lt;td>Bytes&lt;/td>&lt;td>Bytes&lt;/td>&lt;/tr>
+ *         &lt;tr>&lt;td>(kB|KiB)&lt;/td>&lt;td>Kilobytes&lt;/td>&lt;td>Kibibytes&lt;/td>&lt;/tr>
+ *         &lt;tr>&lt;td>(mB|MiB)&lt;/td>&lt;td>Megabytes&lt;/td>&lt;td>Megibytes&lt;/td>&lt;/tr>
+ *         &lt;tr>&lt;td>(gB|GiB)&lt;/td>&lt;td>Gigabytes&lt;/td>&lt;td>Gigibytes&lt;/td>&lt;/tr>
+ *         &lt;tr>&lt;td>(tB|TiB)&lt;/td>&lt;td>Terabytes&lt;/td>&lt;td>Teribytes&lt;/td>&lt;/tr>
+ *     &lt;/tbody>
+ * &lt;/table>
+ * @param {string|number} bytes - string represending the bytes and unit to calculate the conversion
+ * @returns {bytes} - returns the number of bytes represented by the string
+ * @example
+ * sizeToBytes( '1 KB' )        // -> 1000
+ * sizeToBytes( '1 KiB' )       // -> 1024
+ * sizeToBytes( '1 Kilobytes' ) // -> 1000
+ * sizeToBytes( '1 Kibibytes' ) // -> 1024
+ */
+function sizeToBytes( bytes ) {
+	let match;
+	
+	return !bytes ? 0 : bytes === +bytes ? bytes :
+		( match = /^(\d+) ?(tB|TiB|Ter[a,i]bytes?)$/gim.exec( bytes ) ) ?
+			/tB|tera/gi.test( match[ 2 ] ) ? match[ 1 ] * 1000000000000 : match[ 1 ] * 1099511627776 :
+			( match = /^(\d+) ?(gB|GiB|Gig[a,i]bytes?)$/gim.exec( bytes ) ) ?
+				/gB|giga/gi.test( match[ 2 ] ) ? match[ 1 ] * 1000000000 : match[ 1 ] * 1073741824 :
+				( match = /^(\d+) ?(mB|MiB|Meg[a,i]bytes?)$/gim.exec( bytes ) ) ?
+					/mB|mega/gi.test( match[ 2 ] ) ? match[ 1 ] * 1000000 : match[ 1 ] * 1048576 :
+					( match = /^(\d+) ?(kB|KiB|Ki(?:lo|bi)bytes?)$/gim.exec( bytes ) ) ?
+						/kB|kilo/gi.test( match[ 2 ] ) ? match[ 1 ] * 1000 : match[ 1 ] * 1024 :
+						( match = /^(\d+) ?(?:B|Bytes?)$/gim.exec( bytes ) ) ? +match[ 1 ] : 0;
+}
+
+function isOption( arg ) {
+	return /-+\w+/.test( arg );
+}
+
+module.exports = {
+	convertHighResolutionTime,
+	bytesToSize,
+	sizeToBytes,
+	isOption
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#bytesToSize">bytesToSize</a></li><li><a href="global.html#convertHighResolutionTime">convertHighResolutionTime</a></li><li><a href="global.html#sizeToBytes">sizeToBytes</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Mar 13 2018 19:16:59 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

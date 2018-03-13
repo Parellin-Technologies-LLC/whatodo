@@ -140,12 +140,12 @@ describe( 'whatodo - tests', () => {
 		}
 	);
 	
-	it( 'should capture timing and be less than 150 microseconds (μs)',
+	it( 'should capture timing and be less than 200 microseconds (μs)',
 		() => {
 			const todo = todos.todos[ 0 ];
 			
 			expect( +( todo.timing.match( /\d+.\d+/ )[ 0 ] ) )
-				.to.be.lt( 150 );
+				.to.be.lt( 200 );
 		}
 	);
 	
@@ -201,7 +201,6 @@ describe( 'whatodo - tests', () => {
 	it( 'should report todos in JSON format',
 		() => expect( spawnCLI( 'node', './cli.js', '-i', './test/test.cc', '-f', 'JSON' ) )
 			.to.eventually.have
-			.string( '"file": "/Users/trashcan/GitHub/whatodo/test/test.cc"' )
 			.and.string( '"comment": "todo low priority"' )
 			.and.string( '"comment": "todo mid priority"' )
 			.and.string( '"comment": "todo high priority"' )
