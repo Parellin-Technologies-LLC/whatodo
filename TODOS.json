@@ -1,7 +1,7 @@
 [
     {
         "file": "/Users/trashcan/GitHub/whatodo/test/test.cc",
-        "timing": "131.600 μs",
+        "timing": "124.684 μs",
         "todos": [
             {
                 "priority": "LOW",

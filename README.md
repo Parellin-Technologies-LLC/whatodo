@@ -92,3 +92,7 @@ Output:
     }
 ]
 ```
+
+NPM Problems?
+
+Try this: `sudo npm install -g whatodo --unsafe-perm=true --allow-root`

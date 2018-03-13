@@ -1,41 +1,7 @@
 #include "todo.h"
 
-string string_format( const string fmt, ... ) {
-    vector< char > str( 100, '\0' );
-    va_list ap;
-
-    while( 1 ) {
-        va_start( ap, fmt );
-
-        auto n = vsnprintf( str.data(), str.size(), fmt.c_str(), ap );
-
-        va_end( ap );
-
-        if( ( n > -1 ) && ( size_t( n ) < str.size() ) ) {
-            return str.data();
-        }
-
-        if( n > -1 ) {
-            str.resize( n + 1 );
-		} else {
-            str.resize( str.size() * 2 );
-		}
-    }
-
-    return str.data();
-}
-
-string v8StringToStd( Local<String> ref ) {
-	String::Utf8Value arg( ref );
-	return string( *arg );
-}
-
-Local<String> stdStringToV8( Isolate *isolate, string ref ) {
-	return String::NewFromUtf8( isolate, ref.c_str() );
-}
-
-Local<Value> SearchLine( Isolate *isolate, string &line, int &i ) {
-    const regex rx( v8StringToStd( _TODO_PATTERN ) );
+Local<Value> SearchLine( Isolate *isolate, Local<String> &pattern, string &line, int &i ) {
+    const regex rx( v8StringToStd( pattern ) );
     bool containsTodo;
 
     sregex_iterator ri = sregex_iterator( line.begin(), line.end(), rx );
@@ -81,6 +47,8 @@ Local<Value> SearchLine( Isolate *isolate, string &line, int &i ) {
     	return Null( isolate );
     }
 }
+
+extern Local<String> _TODO_PATTERN;
 
 void SearchFile( const FunctionCallbackInfo<Value> &args ) {
     Isolate *isolate = args.GetIsolate();

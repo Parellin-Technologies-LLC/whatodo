@@ -2,7 +2,7 @@
     "targets": [
         {
             "target_name": "todo",
-            "sources": [ "todo.cc" ]
+            "sources": [ "src/todo.cc" ]
         }
     ]
 }
