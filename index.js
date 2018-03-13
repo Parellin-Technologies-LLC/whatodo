@@ -17,7 +17,6 @@ const
 
 // TODO:: write docs, installation, usage, etc
 // TODO: note syntax and priority specification for different priority levels
-// TODO: allow progress bar in CLI
 class Whatodo
 {
 	constructor( opts )
