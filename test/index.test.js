@@ -49,8 +49,8 @@ function spawnCLI( cmd, ...args ) {
 describe( 'whatodo - tests', () => {
 	const
 		Whatodo  = require( '../index' ),
-		testFile = join( process.cwd(), 'test', 'test.cc' ),
-		copyBack = join( process.cwd(), 'test', 'test_copy.cc' );
+		testFile = join( process.cwd(), 'test', 'test.cpp' ),
+		copyBack = join( process.cwd(), 'test', 'test_copy.cpp' );
 	
 	let todos = new Whatodo( {
 		input: testFile,
@@ -113,14 +113,12 @@ describe( 'whatodo - tests', () => {
 	);
 	
 	it( 'should search the listed files and collect TODOs',
-		() => {
-			expect( todos.run().then( inst => todos = inst ) )
-				.to.eventually.have.property( 'todos' )
-				.and.to.be.an( 'array' );
-		}
+		() => expect( todos.run().then( inst => todos = inst ) )
+			.to.eventually.have.property( 'todos' )
+			.and.to.be.an( 'array' )
 	);
 	
-	it( 'should capture file "test.cc"',
+	it( 'should capture file "test.cpp"',
 		() => {
 			const todo = todos.todos[ 0 ];
 			
@@ -130,7 +128,7 @@ describe( 'whatodo - tests', () => {
 		}
 	);
 	
-	it( 'should capture file size of "test.cc"',
+	it( 'should capture file size of "test.cpp"',
 		() => {
 			const todo = todos.todos[ 0 ];
 			
@@ -140,19 +138,17 @@ describe( 'whatodo - tests', () => {
 		}
 	);
 	
-	it( 'should capture timing and be less than 200 microseconds (μs)',
+	it( 'should capture timing and be less than 250 microseconds (μs)',
 		() => {
 			const todo = todos.todos[ 0 ];
 			
 			expect( +( todo.timing.match( /\d+.\d+/ )[ 0 ] ) )
-				.to.be.lt( 200 );
+				.to.be.lt( 250 );
 		}
 	);
 	
 	it( 'should save output to the specified output file',
-		() => {
-			expect( todos.save() ).to.eventually.eq( `${todos.outputFile} SAVED` );
-		}
+		() => expect( todos.save() ).to.eventually.eq( todos )
 	);
 	
 	it( `should create file named ${todos.outputFile}`,
@@ -191,7 +187,7 @@ describe( 'whatodo - tests', () => {
 	);
 	
 	it( 'should report todos in STDOUT format with REGEX "\\/\\/ ?TEST:?:?:? ?"',
-		() => expect( spawnCLI( 'node', './cli.js', '-i', './test/test.cc', '-f', 'STDOUT', '-p', '\\/\\/ ?TEST:?:?:? ?' ) )
+		() => expect( spawnCLI( 'node', './cli.js', '-i', './test/test.cpp', '-f', 'STDOUT', '-p', '\\/\\/ ?TEST:?:?:? ?' ) )
 			.to.eventually.have
 			.string( '[LOW]  line: 4 - test low priority' )
 			.and.string( '[MID]  line: 5 - test mid priority' )
@@ -199,7 +195,7 @@ describe( 'whatodo - tests', () => {
 	);
 	
 	it( 'should report todos in JSON format',
-		() => expect( spawnCLI( 'node', './cli.js', '-i', './test/test.cc', '-f', 'JSON' ) )
+		() => expect( spawnCLI( 'node', './cli.js', '-i', './test/test.cpp', '-f', 'JSON' ) )
 			.to.eventually.have
 			.and.string( '"comment": "todo low priority"' )
 			.and.string( '"comment": "todo mid priority"' )

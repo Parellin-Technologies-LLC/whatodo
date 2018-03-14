@@ -111,7 +111,7 @@ Creates a `todos.json` file:
 ```
 [
     {
-        "file": "whatodo/test/test.cc",
+        "file": "whatodo/test/test.cpp",
         "timing": "120.263 μs",
         "todos": [
             {

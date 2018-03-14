@@ -6,6 +6,7 @@
 'use strict';
 
 const
+	style                        = require( 'ansi-styles' ),
 	{ readdir, stat, writeFile } = require( 'fs' ),
 	{ resolve, join }            = require( 'path' ),
 	todo                         = require( 'bindings' )( 'todo' ),
@@ -15,7 +16,7 @@ const
 		sizeToBytes
 	}                            = require( './utils' );
 
-// TODO:: write docs, installation, usage, etc
+// TODO:: write API docs for removing a TODO
 // TODO: note syntax and priority specification for different priority levels
 class Whatodo
 {
@@ -161,13 +162,24 @@ class Whatodo
 		return this.todos;
 	}
 	
+	stylePriorityColor( priority, msg )
+	{
+		return priority === 'HIGH' ? `${style.redBright.open}${msg}${style.redBright.close}` :
+			priority === 'MID' ? `${style.yellowBright.open}${msg}${style.yellowBright.close}` :
+				priority === 'LOW' ? `${style.greenBright.open}${msg}${style.greenBright.close}` :
+					msg;
+	}
+	
 	convertToStdoutFormat()
 	{
 		const todos = this.getTodos();
 		
 		return todos.reduce(
 			( r, item ) => {
-				r += `${item.file}  (${item.timing} - ${item.size} bytes)\n`;
+				r += style.bgWhiteBright.open + style.blue.open;
+				r += `${item.file}  (${item.timing} - ${item.size} bytes)`;
+				r += style.blue.close + style.bgWhiteBright.close;
+				r += '\n';
 				
 				if( item.skip ) {
 					r += `    Item Skipped - Maximum File Size Exceeded ${bytesToSize( this.maximumFileSize )}\n`;
@@ -176,12 +188,15 @@ class Whatodo
 						todo => {
 							const priority = todo.priority;
 							
-							r += '    ';
-							r += `[${priority}]`;
-							r += ' '.repeat( 5 - priority.length );
-							r += `line: ${todo.line}`;
-							r += ` - ${todo.comment}`;
-							r += '\n';
+							let msg = '';
+							
+							msg += '    ';
+							msg += `[${priority}]`;
+							msg += ' '.repeat( 5 - priority.length );
+							msg += `line: ${todo.line}`;
+							msg += ` - ${todo.comment}`;
+							
+							r += `${this.stylePriorityColor( priority, msg )}\n`;
 						}
 					);
 				}
