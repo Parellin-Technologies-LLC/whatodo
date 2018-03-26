@@ -1,51 +1,52 @@
 {
-    "name": "whatodo",
-    "version": "0.3.5",
-    "description": "A TODO collector, organizer, and task manager",
-    "main": "index.js",
-    "scripts": {
-        "package": "~/nodec --tmpdir=./.tmp -o whatodo ./cli.js",
-        "start": "node cli.js ./",
-        "build": "node-gyp build",
-        "configure": "node-gyp configure",
-        "pretest": "node-gyp rebuild -C",
-        "test": "mocha",
-        "docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/ && cp ./todo.png docs/todo.png",
-        "compile": "rm ./todo && npm run configure && npm run build && ~/nodec --tmpdir=../.tmp -o todo ./cli.js",
-        "lint": "eslint .",
-        "preversion": "npm run lint && npm run docs"
-    },
-    "bin": {
-        "whatodo": "./cli.js",
-        "todo": "./cli.js"
-    },
-    "gypfile": true,
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/Parellin-Technologies-LLC/whatodo.git"
-    },
-    "keywords": [
-        "whatodo",
-        "todo",
-        "comments",
-        "tasks",
-        "organization"
-    ],
-    "author": "Parellin Technologies LLC",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/Parellin-Technologies-LLC/whatodo/issues"
-    },
-    "homepage": "https://github.com/Parellin-Technologies-LLC/whatodo#readme",
-    "devDependencies": {
-        "chai": "^4.1.2",
-        "chai-as-promised": "^7.1.1",
-        "eslint": "^4.16.0",
-        "mocha": "^5.0.0"
-    },
-    "dependencies": {
-        "ansi-styles": "^3.2.1",
-        "bindings": "^1.3.0",
-        "node-gyp": "^3.6.2"
-    }
+	"name": "whatodo",
+	"version": "0.3.5",
+	"description": "A TODO collector, organizer, and task manager",
+	"main": "index.js",
+	"scripts": {
+		"build": "node-gyp build",
+		"compile": "rm ./todo && npm run configure && npm run build && ~/nodec --tmpdir=../.tmp -o todo ./cli.js",
+		"configure": "node-gyp configure",
+		"docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/ && cp ./todo.png docs/todo.png",
+		"install": "node-gyp rebuild",
+		"lint": "eslint .",
+		"package": "~/nodec --tmpdir=./.tmp -o whatodo ./cli.js",
+		"pretest": "node-gyp rebuild -C",
+		"preversion": "npm run lint && npm run docs",
+		"start": "node cli.js ./",
+		"test": "mocha"
+	},
+	"bin": {
+		"whatodo": "./cli.js",
+		"todo": "./cli.js"
+	},
+	"gypfile": true,
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Parellin-Technologies-LLC/whatodo.git"
+	},
+	"keywords": [
+		"whatodo",
+		"todo",
+		"comments",
+		"tasks",
+		"organization"
+	],
+	"author": "Parellin Technologies LLC",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/Parellin-Technologies-LLC/whatodo/issues"
+	},
+	"homepage": "https://github.com/Parellin-Technologies-LLC/whatodo#readme",
+	"devDependencies": {
+		"chai": "^4.1.2",
+		"chai-as-promised": "^7.1.1",
+		"eslint": "^4.16.0",
+		"mocha": "^5.0.0"
+	},
+	"dependencies": {
+		"ansi-styles": "^3.2.1",
+		"bindings": "^1.3.0",
+		"node-gyp": "^3.6.2"
+	}
 }
