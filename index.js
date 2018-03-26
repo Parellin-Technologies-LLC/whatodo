@@ -6,10 +6,12 @@
 'use strict';
 
 const
+	binary                       = require( 'node-pre-gyp' ),
 	style                        = require( 'ansi-styles' ),
 	{ readdir, stat, writeFile } = require( 'fs' ),
 	{ resolve, join }            = require( 'path' ),
-	todo                         = require( 'bindings' )( 'todo' ),
+	todo                         = require( binary.find( resolve( join( __dirname, './package.json' ) ) ) ),
+	// todo                         = require( 'bindings' )( 'todo' ),
 	{
 		convertHighResolutionTime,
 		bytesToSize,
