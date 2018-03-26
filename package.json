@@ -11,7 +11,7 @@
 		"install": "node-pre-gyp install --fallback-to-build",
 		"lint": "eslint .",
 		"package": "./node_modules/.bin/node-pre-gyp package",
-		"publish": "./node_modules/.bin/node-pre-gyp publish",
+		"publish": "./node_modules/.bin/node-pre-gyp package publish",
 		"preinstall": "npm install node-pre-gyp",
 		"pretest": "npm run build",
 		"preversion": "npm run lint && npm run docs",
