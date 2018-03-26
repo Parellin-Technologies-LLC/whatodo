@@ -1,7 +1,7 @@
 [
     {
         "file": "/Users/codebuddha/GitHub/whatodo/test/test.cpp",
-        "timing": "134.167 μs",
+        "timing": "115.436 μs",
         "todos": [
             {
                 "priority": "LOW",

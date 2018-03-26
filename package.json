@@ -4,15 +4,14 @@
 	"description": "A TODO collector, organizer, and task manager",
 	"main": "index.js",
 	"scripts": {
-		"build": "npm install --build-from-source",
+		"build": "node-gyp rebuild",
 		"compile": "rm ./todo && npm run configure && npm run build && ~/nodec --tmpdir=../.tmp -o todo ./cli.js",
 		"configure": "node-gyp configure",
 		"docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/ && cp ./todo.png docs/todo.png",
-		"install": "node-pre-gyp install --fallback-to-build",
+		"install": "node-gyp build -C ./",
 		"lint": "eslint .",
-		"package": "./node_modules/.bin/node-pre-gyp package",
-		"publish": "./node_modules/.bin/node-pre-gyp package publish",
-		"preinstall": "npm install node-pre-gyp",
+		"publish": "npm publish",
+		"preinstall": "",
 		"prepublishOnly": "npm ls",
 		"pretest": "npm run build",
 		"preversion": "npm run lint && npm run docs",
@@ -41,24 +40,12 @@
 		"url": "https://github.com/Parellin-Technologies-LLC/whatodo/issues"
 	},
 	"homepage": "https://github.com/Parellin-Technologies-LLC/whatodo#readme",
-	"bundledDependencies": [
-		"node-pre-gyp"
-	],
-	"binary": {
-		"module_name": "whatodo",
-		"module_path": "./build/{configuration}/{node_abi}-{platform}-{arch}/",
-		"remote_path": "./v{version}/{configuration}/",
-		"package_name": "{module_name}-v{version}-{node_abi}-{platform}-{arch}.tar.gz",
-		"host": "https://whatodo.s3-us-east-1.amazonaws.com"
-	},
 	"dependencies": {
 		"ansi-styles": "^3.2.1",
 		"bindings": "^1.3.0",
-		"node-gyp": "^3.6.2",
-		"node-pre-gyp": "^0.9.0"
+		"node-gyp": "^3.6.2"
 	},
 	"devDependencies": {
-		"aws-sdk": "^2.213.1",
 		"chai": "^4.1.2",
 		"chai-as-promised": "^7.1.1",
 		"eslint": "^4.16.0",
