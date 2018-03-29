@@ -10,7 +10,7 @@
 		"docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/ && cp ./todo.png docs/todo.png",
 		"install": "npm run build",
 		"lint": "eslint .",
-		"preinstall": "npm i node-gyp && npm run configure",
+		"preinstall": "npm run configure",
 		"pretest": "npm run build",
 		"preversion": "npm run lint && npm run docs",
 		"start": "node cli.js ./",

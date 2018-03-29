@@ -2,7 +2,7 @@
 
 Local<Value> SearchLine( Isolate *isolate, string &pattern, string &line, int &i ) {
 	const regex rx( pattern );
-	bool containsTodo;
+	bool containsTodo = false;
 
 	sregex_iterator ri = sregex_iterator( line.begin(), line.end(), rx );
 	Local<Object> match = Object::New( isolate );
