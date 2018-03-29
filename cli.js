@@ -43,7 +43,7 @@ function reportError( e ) {
 	console.log( '  ' );
 	console.log( '  Whatodo: Error Report' );
 	console.log( '  ' );
-	console.log( `    ${( e.stackTrace || e.message || e ).split( '\n' ).join( '\n    ' )}` );
+	console.log( `    ${( e.stackTrace || e.stack || e ).split( '\n' ).join( '\n    ' )}` );
 	console.log( '  ' );
 	process.exit( 1 );
 }

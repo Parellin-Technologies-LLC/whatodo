@@ -35,7 +35,7 @@ List priorities:
 
 NPM Problems?
 
-Try this: `sudo npm install -g whatodo --unsafe-perm=true --allow-root`
+Try this: `sudo npm install -g whatodo --unsafe-perm`
 
 ### <a name="apiusage" href="#top">API Usage</a>
 

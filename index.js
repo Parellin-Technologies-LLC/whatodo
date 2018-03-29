@@ -28,7 +28,7 @@ class Whatodo
 		
 		this.input = resolve( opts.input || process.cwd() );
 		
-		this.ignore     = opts.ignore || [ 'node_modules', '.git', '.idea', 'docs', 'build' ];
+		this.ignore     = opts.ignore || [ 'node_modules', '.git', '.idea', 'docs', 'build', '9.9.0' ];
 		this.ignoreExts = opts.ignoreExts || [ 'json', 'html', 'css', 'md' ];
 		
 		this.ignoreRx     = new RegExp( `^${this.ignore.join( '$|^' )}$` );

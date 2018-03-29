@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "string_format.cpp"
 #include "string_utils.cpp"
 
 using v8::Context;

@@ -115,10 +115,10 @@ void SearchFile( const FunctionCallbackInfo<Value> &args ) {
 	auto tresult = chrono::duration_cast<chrono::nanoseconds>( end - begin ).count();
 
 	string time = tresult == 0 ? "0" :
-		tresult < 1000 ? string_format( "%lld ns", tresult ) :
-			tresult < 1000000 ? string_format( "%.3f μs", ( double )tresult / 1e3 ) :
-				tresult < 1000000000 ? string_format( "%.3f ms", ( double )tresult / 1e6 ) :
-					string_format( "%.3f s", ( double )tresult / 1e9 );
+		tresult < 1000 ? std::to_string( tresult ) + " ns" :
+			tresult < 1000000 ? std::to_string( ( int )( ( double )tresult / 1e3 ) ) + " μs" :
+				tresult < 1000000000 ? std::to_string( ( int )( ( double )tresult / 1e6 ) ) + " ms" :
+					std::to_string( ( int )( ( double )tresult / 1e9 ) ) + " s";
 
 	result->Set( stdStringToV8( isolate, "file" ), stdStringToV8( isolate, fname ) );
 	result->Set( stdStringToV8( isolate, "timing" ), stdStringToV8( isolate, time ) );
