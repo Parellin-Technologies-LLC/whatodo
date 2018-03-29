@@ -4,9 +4,9 @@
 	"description": "A TODO collector, organizer, and task manager",
 	"main": "index.js",
 	"scripts": {
-		"build": "node_modules/node-gyp/bin/node-gyp.js rebuild",
+		"build": "node_modules/node-gyp/bin/node-gyp.js rebuild --devdir=./",
 		"compile": "rm ./todo && npm run configure && npm run build && ~/nodec --tmpdir=../.tmp -o todo ./cli.js",
-		"configure": "node_modules/node-gyp/bin/node-gyp.js configure",
+		"configure": "node_modules/node-gyp/bin/node-gyp.js configure --devdir=./",
 		"docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/ && cp ./todo.png docs/todo.png",
 		"install": "npm run build",
 		"lint": "eslint .",
