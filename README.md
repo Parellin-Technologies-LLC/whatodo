@@ -91,14 +91,14 @@ When ready, run the `todo` cli to collect your comments:
     -h, --help      show this help menu
     -v, --version   show package version
     -i, --input     directory or file to check TODOs  (default: ./)
-    -o, --output    file to save TODOs                (default: stdout)
-    -f, --format    format to save TODOs              (default: STDOUT, "JSON")
+    -o, --output    file to save TODOs                (default: STDOUT)
+    -f, --format    format to save/print TODOs        (default: STDOUT, JSON)
     -p, --pattern   pattern to capture TODOs          (default: "\/\/ ?TODO:?:?:? ?")
     -m, --maximum   maximum file size allowed         (default: "1 MB", 512KiB)
   
 ```
 
-### `todo ./ -f JSON -o todos.json -m 1KiB -p "\/\/ ?TEST:?:?:? ?"`
+##### `todo ./ -f JSON -o todos.json -m 1KiB -p "\/\/ ?TEST:?:?:? ?"`
 
 Specify:
 - JSON formatted output
@@ -106,7 +106,7 @@ Specify:
 - Set a maximum search of 1 Kibibyte files
 - TODO search regex `"\/\/ ?TEST:?:?:? ?"`
 
-Creates a `todos.json` file:
+Creates a `TODOS.json` file:
 
 ```
 [

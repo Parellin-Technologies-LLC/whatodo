@@ -10,41 +10,51 @@ const
 	{ resolve }  = require( 'path' ),
 	{ version }  = require( './package.json' ),
 	{ isOption } = require( './utils' ),
-	Whatodo      = require( './index' );
+	Whatodo      = require( './index' ),
+	tab          = '  ',
+	endl         = '\n',
+	dtab         = tab + tab,
+	tendl        = tab + endl;
 
 function _version() {
-	console.log( `v${version}` );
+	console.log( `v${version}${endl}` );
 }
 
 function _help() {
-	console.log( '  ' );
-	console.log( `  Whatodo v${version}` );
-	console.log( '  ' );
-	console.log( '  Whatodo is a NPM Module designed to quickly and efficiently extract your' );
-	console.log( '  TODO comments from your code and organize them in a simple & readable format' );
-	console.log( '  ' );
-	console.log( '  Usage:' );
-	console.log( '  ' );
-	console.log( '    todo [input file/folder] [...options]' );
-	console.log( '  ' );
-	console.log( '  Options:' );
-	console.log( '  ' );
-	console.log( '    -h, --help      show this help menu' );
-	console.log( '    -v, --version   show package version' );
-	console.log( '    -i, --input     directory or file to check TODOs  (default: ./)' );
-	console.log( '    -o, --output    file to save TODOs                (default: stdout)' );
-	console.log( '    -f, --format    format to save TODOs              (default: STDOUT, "JSON")' );
-	console.log( '    -p, --pattern   pattern to capture TODOs          (default: "\\/\\/ ?TODO:?:?:? ?")' );
-	console.log( '    -m, --maximum   maximum file size allowed         (default: "1 MB", 512KiB)' );
-	console.log( '  ' );
+	let help = '';
+	
+	help += tendl;
+	help += `${tab}Whatodo v${version}${endl}`;
+	help += tendl;
+	help += `${tab}Whatodo is a NPM Module designed to quickly and efficiently extract your${endl}`;
+	help += `${tab}TODO comments from your code and organize them in a simple & readable format${endl}`;
+	help += tendl;
+	help += `${tab}Usage:${endl}`;
+	help += tendl;
+	help += `${dtab}todo [input file/folder] [...options]${endl}`;
+	help += tendl;
+	help += `${tab}Options:${endl}`;
+	help += tendl;
+	help += `${dtab}-h, --help      show this help menu${endl}`;
+	help += `${dtab}-v, --version   show package version${endl}`;
+	help += `${dtab}-i, --input     directory or file to check TODOs  (default: ./)${endl}`;
+	help += `${dtab}-o, --output    file to save TODOs                (default: STDOUT)${endl}`;
+	help += `${dtab}-f, --format    format to save/print TODOs        (default: STDOUT, JSON)${endl}`;
+	help += `${dtab}-p, --pattern   pattern to capture TODOs          (default: "\\/\\/ ?TODO:?:?:? ?")${endl}`;
+	help += `${dtab}-m, --maximum   maximum file size allowed         (default: "1 MB", 512KiB)${endl}`;
+	
+	console.log( help );
 }
 
 function reportError( e ) {
-	console.log( '  ' );
-	console.log( '  Whatodo: Error Report' );
-	console.log( '  ' );
-	console.log( `    ${( e.stackTrace || e.stack || e ).split( '\n' ).join( '\n    ' )}` );
-	console.log( '  ' );
+	let report = '';
+	
+	report += tendl;
+	report += `${tab}Whatodo: Error Report${endl}`;
+	report += tendl;
+	report += `${dtab}${( e.stackTrace || e.stack || e ).split( '\\n' ).join( '\\n    ' )}${endl}`;
+	
+	console.error( report );
 	process.exit( 1 );
 }
 

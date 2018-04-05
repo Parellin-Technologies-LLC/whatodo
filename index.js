@@ -28,7 +28,7 @@ class Whatodo
 		
 		this.input = resolve( opts.input || process.cwd() );
 		
-		this.ignore     = opts.ignore || [ 'node_modules', '.git', '.idea', 'docs', 'build', '9.9.0' ];
+		this.ignore     = opts.ignore || [ 'node_modules', '.git', '.idea', 'docs', 'build' ];
 		this.ignoreExts = opts.ignoreExts || [ 'json', 'html', 'css', 'md' ];
 		
 		this.ignoreRx     = new RegExp( `^${this.ignore.join( '$|^' )}$` );
@@ -65,6 +65,12 @@ class Whatodo
 					rej( 'Argument Error - No files found (initialize Whatodo first)' );
 				}
 				
+				this.total   = 0;
+				this.high    = 0;
+				this.mid     = 0;
+				this.low     = 0;
+				this.unknown = 0;
+				
 				this.todos = this.files.reduce(
 					( r, item ) => {
 						if( item.skip ) {
@@ -73,12 +79,18 @@ class Whatodo
 						}
 						
 						const
-							result = this.searchFile( item.file, {
+							result    = this.searchFile( item.file, {
 								input: this.input,
 								todoPattern: this.todoPattern
-							} );
+							} ),
+							todoCount = result.todos.length;
 						
-						if( result.todos.length ) {
+						if( todoCount ) {
+							this.high += result.high;
+							this.mid += result.mid;
+							this.low += result.low;
+							this.unknown += result.unknown;
+							this.total += todoCount;
 							result.size = item.size;
 							r.push( result );
 						}
@@ -89,7 +101,7 @@ class Whatodo
 				
 				this.filesSearched = this.files.length;
 				this.timeEnd       = process.hrtime( this.timeStart );
-				this.totalTime     = convertHighResolutionTime( this.timeEnd, 2 );
+				this.totalTime     = convertHighResolutionTime( this.timeEnd );
 				
 				res( this );
 			}
@@ -162,24 +174,43 @@ class Whatodo
 		return this.todos;
 	}
 	
+	styleHighPriority( msg )
+	{
+		return `${style.redBright.open}${msg}${style.redBright.close}`;
+	}
+	
+	styleMidPriority( msg )
+	{
+		return `${style.yellowBright.open}${msg}${style.yellowBright.close}`;
+	}
+	
+	styleLowPriority( msg )
+	{
+		return `${style.greenBright.open}${msg}${style.greenBright.close}`;
+	}
+	
 	stylePriorityColor( priority, msg )
 	{
-		return priority === 'HIGH' ? `${style.redBright.open}${msg}${style.redBright.close}` :
-			priority === 'MID' ? `${style.yellowBright.open}${msg}${style.yellowBright.close}` :
-				priority === 'LOW' ? `${style.greenBright.open}${msg}${style.greenBright.close}` :
+		return priority === 'high' ? this.styleHighPriority( msg ) :
+			priority === 'mid' ? this.styleMidPriority( msg ) :
+				priority === 'low' ? this.styleLowPriority( msg ) :
 					msg;
 	}
 	
 	convertToStdoutFormat()
 	{
-		const todos = this.getTodos();
+		const
+			todos = this.getTodos(),
+			last  = todos.length - 1,
+			tab   = '    ',
+			endl  = '\n';
 		
 		return todos.reduce(
-			( r, item ) => {
+			( r, item, i ) => {
 				r += style.bgWhiteBright.open + style.blue.open;
 				r += `${item.file}  (${item.timing} - ${item.size} bytes)`;
 				r += style.blue.close + style.bgWhiteBright.close;
-				r += '\n';
+				r += endl;
 				
 				if( item.skip ) {
 					r += `    Item Skipped - Maximum File Size Exceeded ${bytesToSize( this.maximumFileSize )}\n`;
@@ -190,7 +221,7 @@ class Whatodo
 							
 							let msg = '';
 							
-							msg += '    ';
+							msg += tab;
 							msg += `[${priority}]`;
 							msg += ' '.repeat( 5 - priority.length );
 							msg += `line: ${todo.line}`;
@@ -201,19 +232,27 @@ class Whatodo
 					);
 				}
 				
-				return `${r}\n`;
+				if( i === last ) {
+					r += endl;
+					r += `Total: ${this.total}${endl}`;
+					r += this.styleHighPriority( `High: ${this.high}${endl}` );
+					r += this.styleMidPriority( `Mid: ${this.mid}${endl}` );
+					r += this.styleLowPriority( `Low: ${this.low}${endl}` );
+				}
+				
+				return r;
 			}, ''
 		);
 	}
 	
 	printStdout()
 	{
-		return process.stdout.write( this.convertToStdoutFormat() );
+		return console.log( this.convertToStdoutFormat() );
 	}
 	
 	printJSON()
 	{
-		return process.stdout.write( JSON.stringify( this.getTodos(), null, 4 ) );
+		return console.log( JSON.stringify( this.getTodos(), null, 4 ) );
 	}
 	
 	print()
