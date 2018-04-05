@@ -98,6 +98,24 @@ When ready, run the `todo` cli to collect your comments:
   
 ```
 
+#### CLI usage print STDOUT
+
+##### `todo ./ -m 1KiB -p "\/\/ ?TEST:?:?:? ?"`
+
+```
+whatodo/test/test.cpp  (118 μs - 182 bytes)
+    [low]  line: 1 - todo low priority
+    [mid]  line: 2 - todo mid priority
+    [high] line: 3 - todo high priority
+
+Total: 3
+High: 1
+Mid: 1
+Low: 1
+```
+
+#### CLI usage print JSON format and save to file
+
 ##### `todo ./ -f JSON -o todos.json -m 1KiB -p "\/\/ ?TEST:?:?:? ?"`
 
 Specify:
