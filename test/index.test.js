@@ -90,9 +90,9 @@ describe( 'whatodo - tests', () => {
 			expect( output ).to.have.property( 'timing' );
 			expect( output ).to.have.property( 'file' ).and.eq( testFile );
 			expect( output ).to.have.property( 'todos' ).and.deep.eq( [
-				{ priority: 'LOW', line: 1, position: 0, comment: 'todo low priority' },
-				{ priority: 'MID', line: 2, position: 0, comment: 'todo mid priority' },
-				{ priority: 'HIGH', line: 3, position: 0, comment: 'todo high priority' }
+				{ priority: 'low', line: 1, position: 0, comment: 'todo low priority' },
+				{ priority: 'mid', line: 2, position: 0, comment: 'todo mid priority' },
+				{ priority: 'high', line: 3, position: 0, comment: 'todo high priority' }
 			] );
 		}
 	);
@@ -105,9 +105,9 @@ describe( 'whatodo - tests', () => {
 			expect( output ).to.have.property( 'timing' );
 			expect( output ).to.have.property( 'file' ).and.eq( testFile );
 			expect( output ).to.have.property( 'todos' ).and.deep.eq( [
-				{ priority: 'LOW', line: 4, position: 0, comment: 'test low priority' },
-				{ priority: 'MID', line: 5, position: 0, comment: 'test mid priority' },
-				{ priority: 'HIGH', line: 6, position: 0, comment: 'test high priority' }
+				{ priority: 'low', line: 4, position: 0, comment: 'test low priority' },
+				{ priority: 'mid', line: 5, position: 0, comment: 'test mid priority' },
+				{ priority: 'high', line: 6, position: 0, comment: 'test high priority' }
 			] );
 		}
 	);
@@ -189,9 +189,9 @@ describe( 'whatodo - tests', () => {
 	it( 'should report todos in STDOUT format with REGEX "\\/\\/ ?TEST:?:?:? ?"',
 		() => expect( spawnCLI( 'node', './cli.js', '-i', './test/test.cpp', '-f', 'STDOUT', '-p', '\\/\\/ ?TEST:?:?:? ?' ) )
 			.to.eventually.have
-			.string( '[LOW]  line: 4 - test low priority' )
-			.and.string( '[MID]  line: 5 - test mid priority' )
-			.and.string( '[HIGH] line: 6 - test high priority' )
+			.string( '[low]  line: 4 - test low priority' )
+			.and.string( '[mid]  line: 5 - test mid priority' )
+			.and.string( '[high] line: 6 - test high priority' )
 	);
 	
 	it( 'should report todos in JSON format',

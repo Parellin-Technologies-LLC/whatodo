@@ -1,7 +1,7 @@
 #include "todo.hpp"
 
 Local<Value> SearchLine( Isolate *isolate, string &pattern, string &line, int &i ) {
-	const regex rx( pattern );
+	const regex rx( pattern, regex_constants::icase );
 	bool containsTodo = false;
 
 	sregex_iterator ri = sregex_iterator( line.begin(), line.end(), rx );
@@ -58,10 +58,10 @@ void SearchFile( const FunctionCallbackInfo<Value> &args ) {
 
     _TODO_PATTERN     = stdStringToV8( isolate, "\\/\\/ ?TODO:?:?:? ?" );
     _PRIORITY         = stdStringToV8( isolate, "priority" );
-    _PRIORITY_HIGH    = stdStringToV8( isolate, "HIGH" );
-    _PRIORITY_MID     = stdStringToV8( isolate, "MID" );
-    _PRIORITY_LOW     = stdStringToV8( isolate, "LOW" );
-    _PRIORITY_UNKNOWN = stdStringToV8( isolate, "UNKNOWN" );
+    _PRIORITY_HIGH    = stdStringToV8( isolate, "high" );
+    _PRIORITY_MID     = stdStringToV8( isolate, "mid" );
+    _PRIORITY_LOW     = stdStringToV8( isolate, "low" );
+    _PRIORITY_UNKNOWN = stdStringToV8( isolate, "unknown" );
     _LINE             = stdStringToV8( isolate, "line" );
     _POSITION         = stdStringToV8( isolate, "position" );
     _COMMENT          = stdStringToV8( isolate, "comment" );
@@ -88,8 +88,12 @@ void SearchFile( const FunctionCallbackInfo<Value> &args ) {
 
 	auto begin = chrono::high_resolution_clock::now();
 
-	int i = 0,
-		n = 0;
+	int i    = 0,
+		n    = 0,
+		high = 0,
+		mid  = 0,
+		low  = 0,
+		unk  = 0;
 
 	string line;
 	ifstream file( fname );
@@ -101,6 +105,13 @@ void SearchFile( const FunctionCallbackInfo<Value> &args ) {
 			Local<Value> to = SearchLine( isolate, pattern, line, i );
 
 			if( !to->IsNull() ) {
+				const Local<Value> priority = to->ToObject()->Get( _PRIORITY );
+
+				priority == _PRIORITY_HIGH ? high++ :
+					priority == _PRIORITY_MID ? mid++ :
+						priority == _PRIORITY_LOW ? low++ :
+							unk++;
+
 				todos->Set( n++, to );
 			}
 		}
@@ -120,6 +131,10 @@ void SearchFile( const FunctionCallbackInfo<Value> &args ) {
 				tresult < 1000000000 ? std::to_string( ( int )( ( double )tresult / 1e6 ) ) + " ms" :
 					std::to_string( ( int )( ( double )tresult / 1e9 ) ) + " s";
 
+	result->Set( _PRIORITY_HIGH, Number::New( isolate, high ) );
+	result->Set( _PRIORITY_MID, Number::New( isolate, mid ) );
+	result->Set( _PRIORITY_LOW, Number::New( isolate, low ) );
+	result->Set( _PRIORITY_UNKNOWN, Number::New( isolate, unk ) );
 	result->Set( stdStringToV8( isolate, "file" ), stdStringToV8( isolate, fname ) );
 	result->Set( stdStringToV8( isolate, "timing" ), stdStringToV8( isolate, time ) );
 	result->Set( stdStringToV8( isolate, "todos" ), todos );

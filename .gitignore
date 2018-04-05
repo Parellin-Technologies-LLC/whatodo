@@ -488,3 +488,5 @@ paket-files/
 # JetBrains Rider
 *.sln.iml
 todo
+
+TODOS.json

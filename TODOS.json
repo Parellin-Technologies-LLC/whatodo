@@ -1,22 +1,26 @@
 [
     {
+        "high": 1,
+        "mid": 1,
+        "low": 1,
+        "unknown": 0,
         "file": "/Users/codebuddha/GitHub/whatodo/test/test.cpp",
-        "timing": "113.016 μs",
+        "timing": "130 μs",
         "todos": [
             {
-                "priority": "LOW",
+                "priority": "low",
                 "line": 1,
                 "position": 0,
                 "comment": "todo low priority"
             },
             {
-                "priority": "MID",
+                "priority": "mid",
                 "line": 2,
                 "position": 0,
                 "comment": "todo mid priority"
             },
             {
-                "priority": "HIGH",
+                "priority": "high",
                 "line": 3,
                 "position": 0,
                 "comment": "todo high priority"

@@ -1,0 +1,74 @@
+**v0.4.14**
+- added `regex_constants::icase` flag to allow for case insensitive regexs
+- fixed issue#3 added total, high, mid, low, unknown todo ticker
+
+**v0.4.10 - 0.4.13**
+- npm global installation issues
+
+**v0.4.9**
+- removed `string_format` utility class, didn't play nice on Linux systems
+- added `stack` to cli output errors
+
+**v0.4.8**
+- added `node-gyp` install
+
+**v0.4.7**
+- added absolute build path
+
+**v0.4.6**
+- publish patch
+
+**v0.4.5**
+- pointed build to local `node-gyp` module from global
+
+**v0.4.4**
+- `build` to `rebuild`
+
+**v0.4.3**
+- reverted `node-pre-gyp`
+
+**v0.4.2**
+- added `prepublishOnly` to fix `nopt` issue
+
+**v0.4.1**
+- edit publish script
+
+**v0.4.0**
+- added `node-pre-gyp`
+
+**v0.3.6**
+- install rebuild
+
+**v0.3.5**
+- added color to STDOUT
+
+**v0.3.4**
+- updated tests
+
+**v0.3.3**
+- updated docs
+- updated linting
+
+**v0.3.2**
+- changed bin
+
+**v0.3.1**
+- optimized C++ plugin
+
+**v0.3.0**
+- updated cli handling
+- added maximum file size considerations
+
+**0.2.1**
+- added todo line removal
+
+**0.1.6**
+- finished primary operations
+- finished regex override
+
+**v0.1.5**
+- Object to Primitive casting
+- updated TODO scraper
+
+*v0.1.0 - v0.1.4**
+- npm installation issues
