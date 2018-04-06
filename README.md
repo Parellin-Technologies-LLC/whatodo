@@ -155,3 +155,15 @@ Creates a `TODOS.json` file:
     }
 ]
 ```
+
+#### Add todos to your `package.json -> "scripts"`
+
+```
+{
+	"scripts": {
+		"todo": "./node_modules/whatodo/cli.js -i ./ -o TODOS.json -f JSON && ./node_modules/whatodo/cli.js"`
+	}
+}
+```
+
+Then run `npm run todo`!
