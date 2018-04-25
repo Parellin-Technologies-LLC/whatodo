@@ -1,14 +1,13 @@
 using std::string;
-using v8::Isolate;
-using v8::Local;
-using v8::String;
+using Napi::Isolate;
+using Napi::String;
 
-string v8StringToStd( Local<String> ref ) {
-	String::Utf8Value arg( ref );
+string v8StringToStd( Napi::String ref ) {
+	Napi::String arg(env,  ref );
 	return string( *arg );
 }
 
-Local<String> stdStringToV8( Isolate *isolate, string ref ) {
+Napi::String stdStringToV8( Isolate *isolate, string ref ) {
 	return String::NewFromUtf8( isolate, ref.c_str() );
 }
 
