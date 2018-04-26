@@ -1,7 +1,6 @@
-#include <node_api.h>
-#include <assert.h>
-#include "common.c"
+#include <napi.h>
 
+#include <uv.h>
 #include <iostream>
 #include <fstream>
 #include <regex>
@@ -11,6 +10,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//#include "string_utils.cpp"
+#include "string_utils.cc"
 
 using namespace std;

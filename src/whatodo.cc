@@ -1,31 +1,6 @@
-#include <napi.h>
-#include <uv.h>
-#include <iostream>
-#include <fstream>
-#include <regex>
-#include <string>
-#include <chrono>
+#include "whatodo.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-
-using Napi::Context;
-using Napi::Function;
-using Napi::FunctionCallbackInfo;
-using Napi::FunctionReference;
-using Napi::Isolate;
-using Napi::Number;
-using Napi::Object;
-using Napi::Persistent;
-using Napi::Primitive;
-using Napi::String;
-using Napi::Value;
-using Napi::Array;
-using Napi::Null;
-using Napi::Handle;
-using Napi::Exception;
-
-using namespace std;
+using namespace Napi;
 
 Napi::String _TODO_PATTERN;
 Napi::String _PRIORITY;

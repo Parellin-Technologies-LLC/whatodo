@@ -1,0 +1,5 @@
+https://github.com/nodejs/node-addon-api/tree/master/tools
+https://github.com/nodejs/node/blob/92e5f5cc09fdbf223a418aef1154b2b75b3f9dcd/test/addons-napi/test_promise/test.js
+https://github.com/JamesMGreene/napi-async-promise-example/blob/master/addon.cc
+https://nodejs.org/api/n-api.html#n_api_napi_create_async_work
+https://github.com/nodejs/abi-stable-node-addon-examples/blob/master/3_callbacks/napi/addon.cc

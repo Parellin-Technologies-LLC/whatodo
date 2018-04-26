@@ -103,7 +103,7 @@ When ready, run the `todo` cli to collect your comments:
 ##### `todo ./ -m 1KiB -p "\/\/ ?TEST:?:?:? ?"`
 
 ```
-whatodo/test/test.cpp  (118 μs - 182 bytes)
+whatodo/test/test.cc  (118 μs - 182 bytes)
     [low]  line: 1 - todo low priority
     [mid]  line: 2 - todo mid priority
     [high] line: 3 - todo high priority
@@ -129,7 +129,7 @@ Creates a `TODOS.json` file:
 ```
 [
     {
-        "file": "whatodo/test/test.cpp",
+        "file": "whatodo/test/test.cc",
         "timing": "120.263 μs",
         "todos": [
             {
