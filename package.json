@@ -6,11 +6,11 @@
 	"scripts": {
 		"build": "node-gyp rebuild",
 		"compile": "rm ./todo && npm run configure && npm run build && ~/nodec --tmpdir=../.tmp -o todo ./cli.js",
-		"configure": "node_modules/node-gyp/bin/node-gyp.js configure --devdir=./",
+		"configure": "node-gyp configure",
 		"docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/ && cp ./todo.png docs/todo.png",
 		"install": "node-gyp rebuild",
 		"lint": "eslint .",
-		"preinstall": "npm i node-gyp && npm run configure",
+		"preinstall": "npm i node-gyp node-addon-api && npm run configure",
 		"pretest": "npm run build",
 		"preversion": "npm run lint && npm run docs",
 		"start": "node cli.js ./",
@@ -41,6 +41,7 @@
 	"homepage": "https://github.com/Parellin-Technologies-LLC/whatodo#readme",
 	"dependencies": {
 		"ansi-styles": "^3.2.1",
+		"bindings": "^1.3.0",
 		"node-addon-api": "^1.2.0",
 		"node-gyp": "^3.6.2"
 	},
