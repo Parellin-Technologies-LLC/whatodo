@@ -15,7 +15,7 @@ if (!dir) {
 	process.exit(1);
 }
 
-const NodeApiVersion = require('../package.json').version;
+const NodeApiVersion = require('./package.json').version;
 
 const disable = args[1];
 if (disable != "--disable" && dir != "--disable") {

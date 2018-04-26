@@ -14,11 +14,11 @@ console.log( 'todo', todo );
 
 todo
 	.createPromise()
-	.then( n => {
-		const end = process.hrtime( start );
-		console.log( end );
-	} );
+	.then( n => console.log( 'log', n ) )
+	.catch( e => console.error( 'error', e ) );
 
+// todo.concludeCurrentPromise( 'hello world', true );
 todo.concludeCurrentPromise( 'hello world', true );
 
+todo.searchFile( './index.jss' );
 console.log( '\n\n---' );
