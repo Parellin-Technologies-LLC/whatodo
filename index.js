@@ -6,10 +6,11 @@
 'use strict';
 
 const
-	style                        = require( 'ansi-styles' ),
-	{ readdir, stat, writeFile } = require( 'fs' ),
 	{ resolve, join }            = require( 'path' ),
-	todo                         = require( 'bindings' )( 'whatodo' ),
+	{ readdir, stat, writeFile } = require( 'fs' ),
+	style                        = require( 'ansi-styles' ),
+	binding                      = resolve( './build/Release/whatodo' ),
+	todo                         = require( binding ),
 	{
 		convertHighResolutionTime,
 		bytesToSize,
