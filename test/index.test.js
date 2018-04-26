@@ -182,8 +182,7 @@ describe( 'whatodo - tests', () => {
 	
 	it( 'should report error if incorrect format is used',
 		() => expect( spawnCLI( 'node', './cli.js', './', '-f', 'JSONS' ) )
-			.to.eventually.have
-			.string( 'not a supported output' )
+			.to.eventually.have.string( 'JSONS is not a supported output format' )
 	);
 	
 	it( 'should report todos in STDOUT format with REGEX "\\/\\/ ?TEST:?:?:? ?"',
