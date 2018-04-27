@@ -137,127 +137,134 @@ Napi::String _EMPTY_STRING;
 //	args.GetReturnValue().Set( status );
 //}
 
-Napi::Promise searchFile( const Napi::CallbackInfo& info ) {
-	Napi::Env env = info.Env();
-	auto deferred = Napi::Promise::Deferred::New( env );
+Promise searchFile( const CallbackInfo& info ) {
+	Env env = info.Env();
 
-	if( args.Length() < 1 || !args[ 0 ].IsString() ) {
+	auto deferred = Promise::Deferred::New( env );
+
+	if( info.Length() < 1 || !info[ 0 ].IsString() ) {
 		deferred.Reject(
-			Napi::TypeError::New(env, "Invalid argument count").Value()
+			TypeError::New( env, "Argument Error - expected string for [filename] parameter [ 0 ]" ).Value()
 		);
-		isolate->ThrowException( Exception::TypeError( String::NewFromUtf8( isolate, "Argument Error - expected string for [filename]" ) ) );
-		return;
+
+		return deferred.Promise();
+	} else if( !info[ 1 ].IsObject() ) {
+		deferred.Reject(
+			TypeError::New( env, "Argument Error - expected object for parameter [ 1 ]" ).Value()
+		);
+
+		return deferred.Promise();
 	}
 
-    _TODO_PATTERN     = stdStringToV8( isolate, "\\/\\/ ?TODO:?:?:? ?" );
+	string fname = info[ 0 ].ToString();
+	Object obj   = info[ 1 ].ToObject();
 
-    Local<Context> context = isolate->GetCurrentContext();
-    Napi::Object obj      = args[ 1 ]->ToObject( context );
-    Napi::Array props     = obj->GetOwnPropertyNames( context );
+	Name key      = String::New( env, "todoPattern" ).As< Name >();
+	_TODO_PATTERN = obj.Get( static_cast< napi_value >( key ) ).As< String >();
 
-    for( int i = 0, l = props->Length(); i < l; i++ ) {
-    	Napi::Value localKey = props->Get( i );
-    	string key = *String::Utf8Value( localKey );
-
-    	if( key == "todoPattern" ) {
-    		_TODO_PATTERN = obj->Get( context, localKey )->ToString();
-    	}
-	}
-
-	Napi::Object result = Object::New( isolate );
-	Napi::Array todos   = Array::New( isolate );
-
-	string fname   = v8StringToStd( args[ 0 ]->ToString() );
-	string pattern = v8StringToStd( _TODO_PATTERN );
+	deferred.Resolve( String::New( env, fname ) );
 
 	auto begin = chrono::high_resolution_clock::now();
+	
 
-	int i    = 0,
-		n    = 0,
-		high = 0,
-		mid  = 0,
-		low  = 0,
-		unk  = 0;
+//	Napi::Object result = Object::New( isolate );
+//	Napi::Array todos   = Array::New( isolate );
+//
+//	string fname   = v8StringToStd( args[ 0 ]->ToString() );
+//	string pattern = v8StringToStd( _TODO_PATTERN );
+//
+//	auto begin = chrono::high_resolution_clock::now();
+//
+//	int i    = 0,
+//		n    = 0,
+//		high = 0,
+//		mid  = 0,
+//		low  = 0,
+//		unk  = 0;
+//
+//	string line;
+//	ifstream file( fname );
+//
+//	if( file.is_open() ) {
+//		while( getline( file, line ) )
+//		{
+//			++i;
+//			Napi::Value to = SearchLine( isolate, pattern, line, i );
+//
+//			if( !to->IsNull() ) {
+//				const Napi::Value priority = to->ToObject()->Get( _PRIORITY );
+//
+//				priority == _PRIORITY_HIGH ? high++ :
+//					priority == _PRIORITY_MID ? mid++ :
+//						priority == _PRIORITY_LOW ? low++ :
+//							unk++;
+//
+//				todos.Set( n++, to );
+//			}
+//		}
+//
+//		file.close();
+//	} else {
+//		isolate->ThrowException( Exception::TypeError( String::NewFromUtf8( isolate, "Argument Error - unable to open file" ) ) );
+//		return;
+//	}
+//
+//	auto end     = chrono::high_resolution_clock::now();
+//	auto tresult = chrono::duration_cast<chrono::nanoseconds>( end - begin ).count();
+//
+//	string time = tresult == 0 ? "0" :
+//		tresult < 1000 ? std::to_string( tresult ) + " ns" :
+//			tresult < 1000000 ? std::to_string( ( int )( ( double )tresult / 1e3 ) ) + " μs" :
+//				tresult < 1000000000 ? std::to_string( ( int )( ( double )tresult / 1e6 ) ) + " ms" :
+//					std::to_string( ( int )( ( double )tresult / 1e9 ) ) + " s";
+//
+//	result.Set( _PRIORITY_HIGH, Number::New( isolate, high ) );
+//	result.Set( _PRIORITY_MID, Number::New( isolate, mid ) );
+//	result.Set( _PRIORITY_LOW, Number::New( isolate, low ) );
+//	result.Set( _PRIORITY_UNKNOWN, Number::New( isolate, unk ) );
+//	result.Set( stdStringToV8( isolate, "file" ), stdStringToV8( isolate, fname ) );
+//	result.Set( stdStringToV8( isolate, "timing" ), stdStringToV8( isolate, time ) );
+//	result.Set( stdStringToV8( isolate, "todos" ), todos );
+//
+//	args.GetReturnValue().Set( result );
 
-	string line;
-	ifstream file( fname );
-
-	if( file.is_open() ) {
-		while( getline( file, line ) )
-		{
-			++i;
-			Napi::Value to = SearchLine( isolate, pattern, line, i );
-
-			if( !to->IsNull() ) {
-				const Napi::Value priority = to->ToObject()->Get( _PRIORITY );
-
-				priority == _PRIORITY_HIGH ? high++ :
-					priority == _PRIORITY_MID ? mid++ :
-						priority == _PRIORITY_LOW ? low++ :
-							unk++;
-
-				todos.Set( n++, to );
-			}
-		}
-
-		file.close();
-	} else {
-		isolate->ThrowException( Exception::TypeError( String::NewFromUtf8( isolate, "Argument Error - unable to open file" ) ) );
-		return;
-	}
-
-	auto end     = chrono::high_resolution_clock::now();
-	auto tresult = chrono::duration_cast<chrono::nanoseconds>( end - begin ).count();
-
-	string time = tresult == 0 ? "0" :
-		tresult < 1000 ? std::to_string( tresult ) + " ns" :
-			tresult < 1000000 ? std::to_string( ( int )( ( double )tresult / 1e3 ) ) + " μs" :
-				tresult < 1000000000 ? std::to_string( ( int )( ( double )tresult / 1e6 ) ) + " ms" :
-					std::to_string( ( int )( ( double )tresult / 1e9 ) ) + " s";
-
-	result.Set( _PRIORITY_HIGH, Number::New( isolate, high ) );
-	result.Set( _PRIORITY_MID, Number::New( isolate, mid ) );
-	result.Set( _PRIORITY_LOW, Number::New( isolate, low ) );
-	result.Set( _PRIORITY_UNKNOWN, Number::New( isolate, unk ) );
-	result.Set( stdStringToV8( isolate, "file" ), stdStringToV8( isolate, fname ) );
-	result.Set( stdStringToV8( isolate, "timing" ), stdStringToV8( isolate, time ) );
-	result.Set( stdStringToV8( isolate, "todos" ), todos );
-
-	args.GetReturnValue().Set( result );
-}
-
-Napi::Promise initialize( const Napi::CallbackInfo& info ) {
-	Napi::Env env = info.Env();
-	auto deferred = Napi::Promise::Deferred::New( env );
-
-	deferred.Resolve( Napi::Boolean::New( env, true ) );
 
 	return deferred.Promise();
 }
 
-Napi::Object init( Napi::Env env, Napi::Object exports ) {
+Promise initialize( const CallbackInfo& info ) {
+	Env env = info.Env();
+	auto deferred = Promise::Deferred::New( env );
+
+	deferred.Resolve( Boolean::New( env, true ) );
+
+	return deferred.Promise();
+}
+
+Object init( Env env, Object exports ) {
 //	NODE_SET_METHOD( expected, "initialize", initialize );
 //	NODE_SET_METHOD( exports, "searchFile", SearchFile );
 //	NODE_SET_METHOD( exports, "removeTodo", RemoveTodo );
 
-	Napi::String
-		name        = Napi::String::New( env, "name" ),
-		_initialize = Napi::String::New( env, "initialize" ),
-		_searchFile = Napi::String::New( env, "searchFile" );
+	String
+		name        = String::New( env, "name" ),
+		_initialize = String::New( env, "initialize" ),
+		_searchFile = String::New( env, "searchFile" );
 
 	exports.Set( name, "whatodo" );
-	exports.Set( _initialize, Napi::Function::New( env, initialize ) );
-	exports.Set( _searchFile, Napi::Function::New( env, searchFile ) );
+	exports.Set( _initialize, Function::New( env, initialize ) );
+	exports.Set( _searchFile, Function::New( env, searchFile ) );
 
-	_PRIORITY         = Napi::String::New( env, "priority" );
-	_PRIORITY_HIGH    = Napi::String::New( env, "high" );
-	_PRIORITY_MID     = Napi::String::New( env, "mid" );
-	_PRIORITY_LOW     = Napi::String::New( env, "low" );
-	_PRIORITY_UNKNOWN = Napi::String::New( env, "unknown" );
-	_LINE             = Napi::String::New( env, "line" );
-	_POSITION         = Napi::String::New( env, "position" );
-	_COMMENT          = Napi::String::New( env, "comment" );
-	_EMPTY_STRING     = Napi::String::New( env, "" );
+	_TODO_PATTERN     = String::New( env, "\\/\\/ ?TODO:?:?:? ?" );
+	_PRIORITY         = String::New( env, "priority" );
+	_PRIORITY_HIGH    = String::New( env, "high" );
+	_PRIORITY_MID     = String::New( env, "mid" );
+	_PRIORITY_LOW     = String::New( env, "low" );
+	_PRIORITY_UNKNOWN = String::New( env, "unknown" );
+	_LINE             = String::New( env, "line" );
+	_POSITION         = String::New( env, "position" );
+	_COMMENT          = String::New( env, "comment" );
+	_EMPTY_STRING     = String::New( env, "" );
 
 	return exports;
 }

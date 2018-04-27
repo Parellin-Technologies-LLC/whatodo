@@ -5,20 +5,26 @@
  *******************************************************************************************************/
 'use strict';
 
-const todo = require( 'bindings' )( 'whatodo' );
+const
+	{ resolve } = require( 'path' ),
+	todo        = require( 'bindings' )( 'whatodo' );
 
 console.log( '---\n\n' );
 
 console.log( 'todo', todo );
 todo.initialize().then( console.log ).then( () => console.log( 'www' ) );
 console.log( 'hhh' );
-todo.searchFile( './test/test.cc', {
-	input: './',
-	todoPattern: '\\/\\/ ?TODO:?:?:? ?'
-} );
+
+const fpath = resolve( './test/test.cc' );
+todo
+	.searchFile( fpath, {
+		input: './',
+		todoPattern: '\\/\\/ ?TODO:?:?:? ?'
+	} )
+	.then( console.log )
+	.catch( console.error );
+
 console.log( 'ggg' );
-
-
 
 
 // todo.searchFile( console.log );

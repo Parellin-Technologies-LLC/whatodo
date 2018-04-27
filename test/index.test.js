@@ -187,7 +187,9 @@ describe( 'whatodo - tests', () => {
 	);
 	
 	it( 'should report todos in STDOUT format with REGEX "\\/\\/ ?TEST:?:?:? ?"',
-		() => expect( spawnCLI( 'node', './cli.js', '-i', './test/test.cc', '-f', 'STDOUT', '-p', '\\/\\/ ?TEST:?:?:? ?' ) )
+		() => expect(
+			spawnCLI( 'node', './cli.js', '-i', './test/test.cc', '-f', 'STDOUT', '-p', '\\/\\/ ?TEST:?:?:? ?' )
+		)
 			.to.eventually.have
 			.string( '[low]  line: 4 - test low priority' )
 			.and.string( '[mid]  line: 5 - test mid priority' )
