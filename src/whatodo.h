@@ -9,4 +9,5 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "TodoObject.h"
 #include "string_utils.cc"
