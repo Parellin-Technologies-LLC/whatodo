@@ -162,10 +162,11 @@ Promise searchFile( const CallbackInfo& info ) {
 	Name key      = String::New( env, "todoPattern" ).As< Name >();
 	_TODO_PATTERN = obj.Get( static_cast< napi_value >( key ) ).As< String >();
 
-	deferred.Resolve( String::New( env, fname ) );
-
 	auto begin = chrono::high_resolution_clock::now();
-	
+
+	// TODO::: create todo object
+	deferred.Resolve( TodoObject::Init( env ) );
+
 
 //	Napi::Object result = Object::New( isolate );
 //	Napi::Array todos   = Array::New( isolate );
