@@ -3,3 +3,4 @@ https://github.com/nodejs/node/blob/92e5f5cc09fdbf223a418aef1154b2b75b3f9dcd/tes
 https://github.com/JamesMGreene/napi-async-promise-example/blob/master/addon.cc
 https://nodejs.org/api/n-api.html#n_api_napi_create_async_work
 https://github.com/nodejs/abi-stable-node-addon-examples/blob/master/3_callbacks/napi/addon.cc
+https://github.com/nodejs/abi-stable-node-addon-examples/blob/b847923cd93bce530d9a8f1fde74fc0eee809955/6_object_wrap/node-addon-api/myobject.cc
