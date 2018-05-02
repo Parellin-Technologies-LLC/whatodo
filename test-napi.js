@@ -21,7 +21,9 @@ todo
 		input: './',
 		todoPattern: '\\/\\/ ?TODO:?:?:? ?'
 	} )
-	.then( console.log )
+	.then( d => ( console.log( 'TODOBJ', d ), d ) )
+	.then( d => ( console.log( 'stuff', d.stuff ), d ) )
+	.then( d => console.log( require( 'util' ).inspect( d, { showHidden: true, depth: 0 } ) ) )
 	.catch( console.error );
 
 console.log( 'ggg' );
