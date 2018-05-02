@@ -2,7 +2,7 @@
     'targets': [
         {
             'target_name': 'whatodo',
-            'sources': [ 'src/whatodo.cc' ],
+            'sources': [ 'src/whatodo.cc', 'src/TodoObject.cc' ],
             'include_dirs': ["<!@(node -p \"require('node-addon-api').include\")"],
             'dependencies': ["<!(node -p \"require('node-addon-api').gyp\")"],
             'cflags!': [ '-fno-exceptions' ],

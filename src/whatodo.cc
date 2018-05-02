@@ -139,6 +139,7 @@ Napi::String _EMPTY_STRING;
 
 Promise searchFile( const CallbackInfo& info ) {
 	Env env = info.Env();
+	TodoObject::Init( env );
 
 	auto deferred = Promise::Deferred::New( env );
 
@@ -164,8 +165,9 @@ Promise searchFile( const CallbackInfo& info ) {
 
 	auto begin = chrono::high_resolution_clock::now();
 
-	// TODO::: create todo object
-	deferred.Resolve( TodoObject::Init( env ) );
+	Object todo = TodoObject::New( info[ 0 ] );
+
+	deferred.Resolve( todo );
 
 
 //	Napi::Object result = Object::New( isolate );
@@ -229,6 +231,7 @@ Promise searchFile( const CallbackInfo& info ) {
 //
 //	args.GetReturnValue().Set( result );
 
+//Napi::String::New( info.Env(), _filename.Utf8Value().c_str() );
 
 	return deferred.Promise();
 }
@@ -243,10 +246,6 @@ Promise initialize( const CallbackInfo& info ) {
 }
 
 Object init( Env env, Object exports ) {
-//	NODE_SET_METHOD( expected, "initialize", initialize );
-//	NODE_SET_METHOD( exports, "searchFile", SearchFile );
-//	NODE_SET_METHOD( exports, "removeTodo", RemoveTodo );
-
 	String
 		name        = String::New( env, "name" ),
 		_initialize = String::New( env, "initialize" ),
