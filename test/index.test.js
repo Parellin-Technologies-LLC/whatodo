@@ -151,7 +151,7 @@ describe( 'whatodo - tests', () => {
 		() => expect( todos.save() ).to.eventually.eq( todos )
 	);
 	
-	it( `should create file named ${todos.outputFile}`,
+	it( `should create file named ${ todos.outputFile }`,
 		() => {
 			const outputExists = fs.existsSync( todos.outputFile );
 			expect( outputExists ).to.eq( true );
@@ -177,7 +177,7 @@ describe( 'whatodo - tests', () => {
 	it( 'should report version',
 		() => expect( spawnCLI( 'node', './cli.js', '-v' ) )
 			.to.eventually.have
-			.string( `v${version}` )
+			.string( `v${ version }` )
 	);
 	
 	it( 'should report error if incorrect format is used',

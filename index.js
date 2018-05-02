@@ -32,8 +32,8 @@ class Whatodo
 		this.ignore     = opts.ignore || [ 'node_modules', '.git', '.idea', 'docs', 'build' ];
 		this.ignoreExts = opts.ignoreExts || [ 'json', 'html', 'css', 'md' ];
 		
-		this.ignoreRx     = new RegExp( `^${this.ignore.join( '$|^' )}$` );
-		this.ignoreExtsRx = new RegExp( `\\.(${this.ignoreExts.join( '|' )})+$` );
+		this.ignoreRx     = new RegExp( `^${ this.ignore.join( '$|^' ) }$` );
+		this.ignoreExtsRx = new RegExp( `\\.(${ this.ignoreExts.join( '|' ) })+$` );
 		
 		this.todoPattern = opts.todoPattern || '\\/\\/ ?TODO:?:?:? ?';
 		
@@ -177,17 +177,17 @@ class Whatodo
 	
 	styleHighPriority( msg )
 	{
-		return `${style.redBright.open}${msg}${style.redBright.close}`;
+		return `${ style.redBright.open }${ msg }${ style.redBright.close }`;
 	}
 	
 	styleMidPriority( msg )
 	{
-		return `${style.yellowBright.open}${msg}${style.yellowBright.close}`;
+		return `${ style.yellowBright.open }${ msg }${ style.yellowBright.close }`;
 	}
 	
 	styleLowPriority( msg )
 	{
-		return `${style.greenBright.open}${msg}${style.greenBright.close}`;
+		return `${ style.greenBright.open }${ msg }${ style.greenBright.close }`;
 	}
 	
 	stylePriorityColor( priority, msg )
@@ -209,12 +209,12 @@ class Whatodo
 		return todos.reduce(
 			( r, item, i ) => {
 				r += style.bgWhiteBright.open + style.blue.open;
-				r += `${item.file}  (${item.timing} - ${item.size} bytes)`;
+				r += `${ item.file }  (${ item.timing } - ${ item.size } bytes)`;
 				r += style.blue.close + style.bgWhiteBright.close;
 				r += endl;
 				
 				if( item.skip ) {
-					r += `    Item Skipped - Maximum File Size Exceeded ${bytesToSize( this.maximumFileSize )}\n`;
+					r += `    Item Skipped - Maximum File Size Exceeded ${ bytesToSize( this.maximumFileSize ) }\n`;
 				} else {
 					item.todos.forEach(
 						todo => {
@@ -223,22 +223,22 @@ class Whatodo
 							let msg = '';
 							
 							msg += tab;
-							msg += `[${priority}]`;
-							msg += ' '.repeat( 8 - priority.length );
-							msg += `line: ${todo.line}`;
-							msg += ` - ${todo.comment}`;
+							msg += `[${ priority }]`;
+							msg += ' '.repeat( 5 - priority.length );
+							msg += `line: ${ todo.line }`;
+							msg += ` - ${ todo.comment }`;
 							
-							r += `${this.stylePriorityColor( priority, msg )}\n`;
+							r += `${ this.stylePriorityColor( priority, msg ) }\n`;
 						}
 					);
 				}
 				
 				if( i === last ) {
 					r += endl;
-					r += `Total: ${this.total}${endl}`;
-					r += this.styleHighPriority( `High: ${this.high}${endl}` );
-					r += this.styleMidPriority( `Mid: ${this.mid}${endl}` );
-					r += this.styleLowPriority( `Low: ${this.low}${endl}` );
+					r += `Total: ${ this.total }${ endl }`;
+					r += this.styleHighPriority( `High: ${ this.high }${ endl }` );
+					r += this.styleMidPriority( `Mid: ${ this.mid }${ endl }` );
+					r += this.styleLowPriority( `Low: ${ this.low }${ endl }` );
 				}
 				
 				return r;
@@ -263,7 +263,7 @@ class Whatodo
 		} else if( this.outputFormat === Whatodo.FORMAT.STDOUT ) {
 			return this.printStdout();
 		} else {
-			return console.error( `Format: ${this.outputFormat} not supported yet` );
+			return console.error( `Format: ${ this.outputFormat } not supported yet` );
 		}
 	}
 	
@@ -275,7 +275,7 @@ class Whatodo
 			.then( () => new Promise(
 				( res, rej ) => {
 					if( !this.todos.length ) {
-						return rej( `No TODOs found in ${this.outputFile}` );
+						return rej( `No TODOs found in ${ this.outputFile }` );
 					}
 					
 					let output = this.todos;
@@ -285,7 +285,7 @@ class Whatodo
 					} else if( this.outputFormat === Whatodo.FORMAT.STDOUT ) {
 						output = this.convertToStdoutFormat();
 					} else {
-						return console.error( `Format: ${this.outputFormat} not supported yet` );
+						return console.error( `Format: ${ this.outputFormat } not supported yet` );
 					}
 					
 					writeFile( this.outputFile, output,
