@@ -3,66 +3,17 @@
 using namespace Napi;
 using namespace std;
 
-Napi::String _TODO_PATTERN;
-Napi::String _PRIORITY;
-Napi::String _PRIORITY_HIGH;
-Napi::String _PRIORITY_MID;
-Napi::String _PRIORITY_LOW;
-Napi::String _PRIORITY_UNKNOWN;
-Napi::String _LINE;
-Napi::String _POSITION;
-Napi::String _COMMENT;
-Napi::String _EMPTY_STRING;
+String _TODO_PATTERN;
+String _PRIORITY;
+String _PRIORITY_HIGH;
+String _PRIORITY_MID;
+String _PRIORITY_LOW;
+String _PRIORITY_UNKNOWN;
+String _LINE;
+String _POSITION;
+String _COMMENT;
+String _EMPTY_STRING;
 
-//Napi::Value SearchLine( Isolate *isolate, string &pattern, string &line, int &i ) {
-//	const regex rx( pattern, regex_constants::icase );
-//	bool containsTodo = false;
-//
-//	sregex_iterator ri = sregex_iterator( line.begin(), line.end(), rx );
-//	Napi::Object match = Object::New( isolate );
-//
-//	for( ; ri != sregex_iterator(); ++ri ) {
-//		const smatch m = *ri;
-//
-//		containsTodo = !m.empty();
-//
-//		if( containsTodo ) {
-//			const string ms = m.str();
-//
-//			const int
-//				llen = line.Length(),
-//				len  = ms.Length(),
-//				pos  = m.position(),
-//				cpos = pos + len;
-//
-//			Napi::String comment = stdStringToV8( isolate, line.substr( cpos, llen - cpos ) );
-//
-//			if( comment == _EMPTY_STRING ) {
-//				containsTodo = false;
-//				break;
-//			}
-//
-//			match.Set( _PRIORITY,
-//				ms.find( ":::" ) != string::npos ? _PRIORITY_HIGH :
-//					ms.find( "::" ) != string::npos ? _PRIORITY_MID :
-//						ms.find( ":" ) != string::npos ? _PRIORITY_LOW :
-//							_PRIORITY_UNKNOWN
-//			);
-//
-//			match.Set( _LINE, Number::New( isolate, i ) );
-//			match.Set( _POSITION, Number::New( isolate, pos ) );
-//			match.Set( _COMMENT, comment );
-//		}
-//	}
-//
-//	if( containsTodo ) {
-//		return match;
-//	} else {
-//		return Null( isolate );
-//	}
-//}
-//
-//
 //void RemoveTodo( const FunctionCallbackInfo<Value> &args ) {
 //	Isolate *isolate = args.GetIsolate();
 //
@@ -137,7 +88,56 @@ Napi::String _EMPTY_STRING;
 //	args.GetReturnValue().Set( status );
 //}
 
-Promise searchFile( const CallbackInfo& info ) {
+Value SearchLine( Env env, string &pattern, string &line, int &i ) {
+	const regex rx( pattern, regex_constants::icase );
+	bool containsTodo = false;
+
+	sregex_iterator ri = sregex_iterator( line.begin(), line.end(), rx );
+	Object match = Object::New( env );
+
+	for( ; ri != sregex_iterator(); ++ri ) {
+		const smatch m = *ri;
+
+		containsTodo = !m.empty();
+
+		if( containsTodo ) {
+			const string ms = m.str();
+
+			const int
+				llen = line.length(),
+				len  = ms.length(),
+				pos  = m.position(),
+				cpos = pos + len;
+
+			String comment = String::New( env, line.substr( cpos, llen - cpos ) );
+
+			if( comment == _EMPTY_STRING ) {
+				containsTodo = false;
+				break;
+			}
+
+			match.Set( _PRIORITY,
+				ms.find( ":::" ) != string::npos ? _PRIORITY_HIGH :
+					ms.find( "::" ) != string::npos ? _PRIORITY_MID :
+						ms.find( ":" ) != string::npos ? _PRIORITY_LOW :
+							_PRIORITY_UNKNOWN
+			);
+
+			match.Set( _LINE, Number::New( env, i ) );
+			match.Set( _POSITION, Number::New( env, pos ) );
+			match.Set( _COMMENT, comment );
+		}
+	}
+
+	if( containsTodo ) {
+		return match;
+	} else {
+		return env.Null();
+//		return Null( env );
+	}
+}
+
+Promise searchFile( const CallbackInfo &info ) {
 	Env env = info.Env();
 	TodoObject::Init( env );
 
@@ -163,18 +163,17 @@ Promise searchFile( const CallbackInfo& info ) {
 	Name key      = String::New( env, "todoPattern" ).As< Name >();
 	_TODO_PATTERN = obj.Get( static_cast< napi_value >( key ) ).As< String >();
 
+	TodoObject *todo = ObjectWrap< TodoObject >::Unwrap( info[ 0 ].As< Object >() );
+//	Object todo = TodoObject::New( info[ 0 ] );
+	todo->setTodoPattern( _TODO_PATTERN );
+
 	auto begin = chrono::high_resolution_clock::now();
-
-	Object todo = TodoObject::New( info[ 0 ] );
-
-	deferred.Resolve( todo );
-
 
 //	Napi::Object result = Object::New( isolate );
 //	Napi::Array todos   = Array::New( isolate );
 //
 //	string fname   = v8StringToStd( args[ 0 ]->ToString() );
-//	string pattern = v8StringToStd( _TODO_PATTERN );
+	string pattern = _TODO_PATTERN.ToString();
 //
 //	auto begin = chrono::high_resolution_clock::now();
 //
@@ -192,10 +191,10 @@ Promise searchFile( const CallbackInfo& info ) {
 //		while( getline( file, line ) )
 //		{
 //			++i;
-//			Napi::Value to = SearchLine( isolate, pattern, line, i );
+//			Value to = SearchLine( env, pattern, line, i );
 //
 //			if( !to->IsNull() ) {
-//				const Napi::Value priority = to->ToObject()->Get( _PRIORITY );
+//				const Value priority = to->ToObject()->Get( _PRIORITY );
 //
 //				priority == _PRIORITY_HIGH ? high++ :
 //					priority == _PRIORITY_MID ? mid++ :
@@ -208,8 +207,11 @@ Promise searchFile( const CallbackInfo& info ) {
 //
 //		file.close();
 //	} else {
-//		isolate->ThrowException( Exception::TypeError( String::NewFromUtf8( isolate, "Argument Error - unable to open file" ) ) );
-//		return;
+//		deferred.Reject(
+//			TypeError::New( env, "Argument Error - unable to open file" ).Value()
+//		);
+//
+//		return deferred.Promise();
 //	}
 //
 //	auto end     = chrono::high_resolution_clock::now();
@@ -220,7 +222,11 @@ Promise searchFile( const CallbackInfo& info ) {
 //			tresult < 1000000 ? std::to_string( ( int )( ( double )tresult / 1e3 ) ) + " μs" :
 //				tresult < 1000000000 ? std::to_string( ( int )( ( double )tresult / 1e6 ) ) + " ms" :
 //					std::to_string( ( int )( ( double )tresult / 1e9 ) ) + " s";
-//
+
+	deferred.Resolve( todo.ToObject() );
+//	deferred.Resolve( ObjectWrap< TodoObject >( todo ) );
+//	deferred.Resolve( Object::New( env, todo ) );
+
 //	result.Set( _PRIORITY_HIGH, Number::New( isolate, high ) );
 //	result.Set( _PRIORITY_MID, Number::New( isolate, mid ) );
 //	result.Set( _PRIORITY_LOW, Number::New( isolate, low ) );
@@ -228,15 +234,11 @@ Promise searchFile( const CallbackInfo& info ) {
 //	result.Set( stdStringToV8( isolate, "file" ), stdStringToV8( isolate, fname ) );
 //	result.Set( stdStringToV8( isolate, "timing" ), stdStringToV8( isolate, time ) );
 //	result.Set( stdStringToV8( isolate, "todos" ), todos );
-//
-//	args.GetReturnValue().Set( result );
-
-//Napi::String::New( info.Env(), _filename.Utf8Value().c_str() );
 
 	return deferred.Promise();
 }
 
-Promise initialize( const CallbackInfo& info ) {
+Promise initialize( const CallbackInfo &info ) {
 	Env env = info.Env();
 	auto deferred = Promise::Deferred::New( env );
 
