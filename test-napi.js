@@ -18,7 +18,6 @@ console.log( 'hhh' );
 const fpath = resolve( './test/test.cc' );
 todo
 	.searchFile( fpath, {
-		input: './',
 		todoPattern: '\\/\\/ ?TODO:?:?:? ?'
 	} )
 	.then( d => ( console.log( 'TODOBJ', d ), d ) )
