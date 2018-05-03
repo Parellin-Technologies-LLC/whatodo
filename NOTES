@@ -13,3 +13,5 @@ https://github.com/nodejs/node-addon-api/blob/148ecfa6231be86ae63da14a04333d1cc0
 https://github.com/nodejs/abi-stable-node-addon-examples/blob/b847923cd93bce530d9a8f1fde74fc0eee809955/8_passing_wrapped/node-addon-api/addon.cc
 
 Check later: https://github.com/nodejs/nan/blob/master/doc/object_wrappers.md
+
+https://github.com/nodejs/node-addon-api/blob/master/doc/value.md
