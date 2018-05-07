@@ -224,7 +224,7 @@ class Whatodo
 							
 							msg += tab;
 							msg += `[${priority}]`;
-							msg += ' '.repeat( 5 - priority.length );
+							msg += ' '.repeat( 8 - priority.length );
 							msg += `line: ${todo.line}`;
 							msg += ` - ${todo.comment}`;
 							

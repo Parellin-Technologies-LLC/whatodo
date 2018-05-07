@@ -1,4 +1,4 @@
-#include "todo.hpp"
+#include "todo.h"
 
 Local<Value> SearchLine( Isolate *isolate, string &pattern, string &line, int &i ) {
 	const regex rx( pattern, regex_constants::icase );

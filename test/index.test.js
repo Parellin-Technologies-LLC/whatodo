@@ -49,8 +49,8 @@ function spawnCLI( cmd, ...args ) {
 describe( 'whatodo - tests', () => {
 	const
 		Whatodo  = require( '../index' ),
-		testFile = join( process.cwd(), 'test', 'test.cpp' ),
-		copyBack = join( process.cwd(), 'test', 'test_copy.cpp' );
+		testFile = join( process.cwd(), 'test', 'test.cc' ),
+		copyBack = join( process.cwd(), 'test', 'test_copy.cc' );
 	
 	let todos = new Whatodo( {
 		input: testFile,
@@ -118,7 +118,7 @@ describe( 'whatodo - tests', () => {
 			.and.to.be.an( 'array' )
 	);
 	
-	it( 'should capture file "test.cpp"',
+	it( 'should capture file "test.cc"',
 		() => {
 			const todo = todos.todos[ 0 ];
 			
@@ -128,7 +128,7 @@ describe( 'whatodo - tests', () => {
 		}
 	);
 	
-	it( 'should capture file size of "test.cpp"',
+	it( 'should capture file size of "test.cc"',
 		() => {
 			const todo = todos.todos[ 0 ];
 			
@@ -182,11 +182,11 @@ describe( 'whatodo - tests', () => {
 	
 	it( 'should report error if incorrect format is used',
 		() => expect( spawnCLI( 'node', './cli.js', './', '-f', 'JSONS' ) )
-			.to.eventually.have.string( 'JSONS is not a supported output format' )
+			.to.eventually.have.string( 'not a supported output' )
 	);
 	
 	it( 'should report todos in STDOUT format with REGEX "\\/\\/ ?TEST:?:?:? ?"',
-		() => expect( spawnCLI( 'node', './cli.js', '-i', './test/test.cpp', '-f', 'STDOUT', '-p', '\\/\\/ ?TEST:?:?:? ?' ) )
+		() => expect( spawnCLI( 'node', './cli.js', '-i', './test/test.cc', '-f', 'STDOUT', '-p', '\\/\\/ ?TEST:?:?:? ?' ) )
 			.to.eventually.have
 			.string( '[low]  line: 4 - test low priority' )
 			.and.string( '[mid]  line: 5 - test mid priority' )
@@ -194,7 +194,7 @@ describe( 'whatodo - tests', () => {
 	);
 	
 	it( 'should report todos in JSON format',
-		() => expect( spawnCLI( 'node', './cli.js', '-i', './test/test.cpp', '-f', 'JSON' ) )
+		() => expect( spawnCLI( 'node', './cli.js', '-i', './test/test.cc', '-f', 'JSON' ) )
 			.to.eventually.have
 			.and.string( '"comment": "todo low priority"' )
 			.and.string( '"comment": "todo mid priority"' )

@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "string_utils.cpp"
+#include "string_utils.cc"
 
 using v8::Context;
 using v8::Function;
