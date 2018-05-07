@@ -26,7 +26,7 @@
  */
 
 /**
- * convertHighResolutionTime
+ * normalizeHighResolutionTime
  * @description
  * converts a "final" high resolution time stamp into nanoseconds
  * @param {hrtime} hrtime - high resolution time tuple returned from <code>process.hrtime</code>
@@ -37,9 +37,9 @@
  *     start = process.hrtime(),
  *     end   = process.hrtime( start );
  *
- * convertHighResolutionTime( end ); // -> 2000
+ * normalizeHighResolutionTime( end ); // -> 2000
  */
-function convertHighResolutionTime( hrtime ) {
+function normalizeHighResolutionTime( hrtime ) {
 	if( !Array.isArray( hrtime ) || hrtime.length !== 2 ) {
 		throw new Error( 'Argument Error - expected hrtime_tuple' );
 	}
@@ -111,7 +111,7 @@ function isOption( arg ) {
 }
 
 module.exports = {
-	convertHighResolutionTime,
+	normalizeHighResolutionTime,
 	bytesToSize,
 	sizeToBytes,
 	isOption

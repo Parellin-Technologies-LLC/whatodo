@@ -220,7 +220,7 @@ Promise searchFile( const CallbackInfo &info ) {
 				tresult < 1000000000 ? std::to_string( ( int )( ( double )tresult / 1e6 ) ) + " ms" :
 					std::to_string( ( int )( ( double )tresult / 1e9 ) ) + " s";
 
-	result.Set( String::New( env, "filename" ), fname );
+	result.Set( String::New( env, "file" ), fname );
     result.Set( String::New( env, "todoPattern" ), pattern );
 	result.Set( String::New( env, "high" ), Number::New( env, high ) );
 	result.Set( String::New( env, "mid" ), Number::New( env, mid ) );
