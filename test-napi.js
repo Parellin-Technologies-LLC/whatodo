@@ -21,7 +21,7 @@ todo
 		todoPattern: '\\/\\/ ?TODO:?:?:? ?'
 	} )
 	.then( d => ( console.log( 'TODOBJ', d ), d ) )
-	.then( d => ( console.log( 'stuff', d.filename ), d ) )
+	.then( d => ( console.log( 'stuff', d.file ), d ) )
 	.then( d => ( console.log( 'stuff', d.todoPattern ), d ) )
 	.then( d => console.log( require( 'util' ).inspect( d, { showHidden: true, depth: 0 } ) ) )
 	.catch( console.error );

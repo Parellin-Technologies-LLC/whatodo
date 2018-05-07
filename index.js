@@ -12,7 +12,7 @@ const
 	binding                      = resolve( './build/Release/whatodo' ),
 	todo                         = require( binding ),
 	{
-		convertHighResolutionTime,
+		normalizeHighResolutionTime,
 		bytesToSize,
 		sizeToBytes
 	}                            = require( './utils' );
@@ -72,39 +72,40 @@ class Whatodo
 				this.low     = 0;
 				this.unknown = 0;
 				
-				this.todos = this.files.reduce(
-					( r, item ) => {
-						if( item.skip ) {
-							r.push( item );
-							return r;
-						}
-						
-						const
-							result    = this.searchFile( item.file, {
+				this.todos = Promise.all(
+					this.files.map(
+						item => item.skip ? item :
+							this.searchFile( item.file, {
 								input: this.input,
 								todoPattern: this.todoPattern
-							} ),
-							todoCount = result.todos.length;
-						
-						if( todoCount ) {
-							this.high += result.high;
-							this.mid += result.mid;
-							this.low += result.low;
-							this.unknown += result.unknown;
-							this.total += todoCount;
-							result.size = item.size;
-							r.push( result );
-						}
-						
-						return r;
-					}, []
+							} )
+								.then( d => ( d.size = item.size, d ) )
+					)
 				);
 				
-				this.filesSearched = this.files.length;
-				this.timeEnd       = process.hrtime( this.timeStart );
-				this.totalTime     = convertHighResolutionTime( this.timeEnd );
-				
-				res( this );
+				this.todos
+					.then(
+						d => d.map(
+							i => {
+								if( i.todos.length ) {
+									this.high += i.high;
+									this.mid += i.mid;
+									this.low += i.low;
+									this.unknown += i.unknown;
+									this.total += i.todos.length;
+								}
+								
+								return i;
+							}
+						)
+					)
+					.then( d => this.todos = d )
+					.then( () => {
+						this.filesSearched = this.files.length;
+						this.timeEnd       = process.hrtime( this.timeStart );
+						this.totalTime     = normalizeHighResolutionTime( this.timeEnd );
+					} )
+					.then( () => res( this ) );
 			}
 		);
 	}
@@ -201,13 +202,31 @@ class Whatodo
 	convertToStdoutFormat()
 	{
 		const
-			todos = this.getTodos(),
-			last  = todos.length - 1,
-			tab   = '    ',
-			endl  = '\n';
+			todos    = this.getTodos(),
+			last     = todos.length - 1,
+			tab      = '    ',
+			endl     = '\n',
+			printEnd = r => {
+				r += endl;
+				
+				r += `Total: ${ this.total }${ endl }`;
+				r += this.styleHighPriority( `High: ${ this.high }${ endl }` );
+				r += this.styleMidPriority( `Mid: ${ this.mid }${ endl }` );
+				r += this.styleLowPriority( `Low: ${ this.low }${ endl }` );
+				
+				return r;
+			};
 		
 		return todos.reduce(
 			( r, item, i ) => {
+				if( !item.todos.length ) {
+					if( i === last ) {
+						r += printEnd( r );
+					}
+					
+					return r;
+				}
+				
 				r += style.bgWhiteBright.open + style.blue.open;
 				r += `${ item.file }  (${ item.timing } - ${ item.size } bytes)`;
 				r += style.blue.close + style.bgWhiteBright.close;
@@ -217,28 +236,22 @@ class Whatodo
 					r += `    Item Skipped - Maximum File Size Exceeded ${ bytesToSize( this.maximumFileSize ) }\n`;
 				} else {
 					item.todos.forEach(
-						todo => {
-							const priority = todo.priority;
-							
+						_todo => {
 							let msg = '';
 							
 							msg += tab;
-							msg += `[${ priority }]`;
-							msg += ' '.repeat( 5 - priority.length );
-							msg += `line: ${ todo.line }`;
-							msg += ` - ${ todo.comment }`;
+							msg += `[${ _todo.priority }]`;
+							msg += ' '.repeat( 8 - _todo.priority.length );
+							msg += `line: ${ _todo.line }`;
+							msg += ` - ${ _todo.comment }`;
 							
-							r += `${ this.stylePriorityColor( priority, msg ) }\n`;
+							r += `${ this.stylePriorityColor( _todo.priority, msg ) }\n`;
 						}
 					);
 				}
 				
 				if( i === last ) {
-					r += endl;
-					r += `Total: ${ this.total }${ endl }`;
-					r += this.styleHighPriority( `High: ${ this.high }${ endl }` );
-					r += this.styleMidPriority( `Mid: ${ this.mid }${ endl }` );
-					r += this.styleLowPriority( `Low: ${ this.low }${ endl }` );
+					r += printEnd( r );
 				}
 				
 				return r;
