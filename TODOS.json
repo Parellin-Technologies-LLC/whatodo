@@ -6,7 +6,7 @@
         "mid": 1,
         "low": 1,
         "unknown": 0,
-        "timing": "178 μs",
+        "timing": "128 μs",
         "todos": [
             {
                 "priority": "low",
