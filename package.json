@@ -10,7 +10,6 @@
 		"docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/ && cp ./todo.png docs/todo.png",
 		"install": "node-gyp rebuild",
 		"lint": "eslint .",
-		"preinstall": "npm i node-gyp node-addon-api && npm run configure",
 		"pretest": "npm run build",
 		"preversion": "npm run lint && npm run docs",
 		"start": "node cli.js ./",
