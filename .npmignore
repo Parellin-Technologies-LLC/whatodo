@@ -1,8 +1,14 @@
-/test
 test/
-.git
+build/
+docs/
 .idea
+.git
 .editorconfig
-.jshintrc
+.eslintignore
 .eslintrc
+.gitignore
+.jshintrc
 .npmrc
+CHANGELOG
+todo.png
+TODOS.json

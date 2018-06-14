@@ -5,7 +5,7 @@
         "low": 1,
         "unknown": 0,
         "file": "/Users/codebuddha/GitHub/whatodo/test/test.cc",
-        "timing": "146 μs",
+        "timing": "111 μs",
         "todos": [
             {
                 "priority": "low",

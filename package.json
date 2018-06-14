@@ -4,11 +4,11 @@
 	"description": "A TODO collector, organizer, and task manager",
 	"main": "index.js",
 	"scripts": {
-		"build": "node_modules/node-gyp/bin/node-gyp.js rebuild --devdir=./",
+		"build": "node-gyp rebuild",
 		"compile": "rm ./todo && npm run configure && npm run build && ~/nodec --tmpdir=../.tmp -o todo ./cli.js",
 		"configure": "node_modules/node-gyp/bin/node-gyp.js configure --devdir=./",
 		"docs": "jsdoc ./*.js ./**/*.js -R ./README.md -d docs/ && cp ./todo.png docs/todo.png",
-		"install": "npm run build",
+		"install": "node-gyp rebuild",
 		"lint": "eslint .",
 		"preinstall": "npm i node-gyp && npm run configure",
 		"pretest": "npm run build",
@@ -40,12 +40,16 @@
 	"homepage": "https://github.com/Parellin-Technologies-LLC/whatodo#readme",
 	"dependencies": {
 		"ansi-styles": "^3.2.1",
-		"node-gyp": "^3.6.2"
+		"node-addon-api": "^1.3.0",
+		"node-gyp": "^3.7.0"
 	},
 	"devDependencies": {
 		"chai": "^4.1.2",
 		"chai-as-promised": "^7.1.1",
 		"eslint": "^4.16.0",
 		"mocha": "^5.0.0"
+	},
+	"publishConfig": {
+		"registry": "http://localhost:4873"
 	}
 }
