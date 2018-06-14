@@ -67,7 +67,7 @@ describe( 'whatodo - tests', () => {
 	it( 'should remove todo from file',
 		() => {
 			const output = todos.removeTodo( testFile, 6 );
-			expect( output ).to.eq( true );
+			expect( output ).to.eventually.eq( true );
 			
 			expect( fs.readFileSync( testFile ).toString( 'utf8' ) )
 				.to.not.include.string( '// TODO::: REMOVE THIS' );
@@ -83,8 +83,8 @@ describe( 'whatodo - tests', () => {
 	);
 	
 	it( 'searchFile should capture TODO comments',
-		() => {
-			const output = todos.searchFile( testFile );
+		async () => {
+			const output = await todos.searchFile( testFile );
 			
 			expect( output ).to.be.an( 'object' );
 			expect( output ).to.have.property( 'timing' );
@@ -98,8 +98,8 @@ describe( 'whatodo - tests', () => {
 	);
 	
 	it( 'searchFile RegEx Pattern override should capture TEST comments',
-		() => {
-			const output = todos.searchFile( testFile, { todoPattern: '\\/\\/ ?TEST:?:?:? ?' } );
+		async () => {
+			const output = await todos.searchFile( testFile, { todoPattern: '\\/\\/ ?TEST:?:?:? ?' } );
 			
 			expect( output ).to.be.an( 'object' );
 			expect( output ).to.have.property( 'timing' );
