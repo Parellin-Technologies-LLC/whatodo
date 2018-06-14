@@ -9,7 +9,7 @@ const
 	{ resolve } = require( 'path' ),
 	todo        = require( 'bindings' )( 'whatodo' );
 
-console.log( '---\n\n' );
+console.log( '---start test' );
 
 console.log( 'todo', todo );
 todo.initialize().then( console.log ).then( () => console.log( 'www' ) );
@@ -26,8 +26,12 @@ todo
 	.then( d => console.log( require( 'util' ).inspect( d, { showHidden: true, depth: 0 } ) ) )
 	.catch( console.error );
 
-console.log( 'ggg' );
+todo
+	.removeTodo( fpath, 6 )
+	.then( console.log )
+	.catch( console.error );
 
+console.log( '\n--- should log before promise resolves\n' );
 
 // todo.searchFile( console.log );
 // todo
@@ -41,4 +45,4 @@ console.log( 'ggg' );
 // todo.searchFile( './index.jss' ).then( console.log );
 // console.log( todo.searchFile( './index.jss' ) );
 
-console.log( '\n\n---' );
+console.log( '---end test' );

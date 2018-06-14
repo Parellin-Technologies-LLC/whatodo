@@ -2,11 +2,11 @@
     {
         "file": "/Users/codebuddha/GitHub/whatodo/test/test.cc",
         "todoPattern": "\\/\\/ ?TODO:?:?:? ?",
-        "high": 2,
+        "high": 1,
         "mid": 1,
         "low": 1,
         "unknown": 0,
-        "timing": "130 μs",
+        "timing": "178 μs",
         "todos": [
             {
                 "priority": "low",
@@ -25,14 +25,8 @@
                 "line": 3,
                 "position": 0,
                 "comment": "todo high priority"
-            },
-            {
-                "priority": "high",
-                "line": 7,
-                "position": 13,
-                "comment": "REMOVE THIS"
             }
         ],
-        "size": 205
+        "size": 182
     }
 ]

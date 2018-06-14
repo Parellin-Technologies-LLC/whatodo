@@ -1,3 +1,6 @@
+geoserverData/
+docs/xterrainlogo.png
+
 # code coverage
 coverage
 lib-cov
@@ -487,6 +490,13 @@ paket-files/
 
 # JetBrains Rider
 *.sln.iml
-todo
 
-TODOS.json
+docs/generateRandom\.js\.html
+docs/global\.html
+docs/hmacHash\.js\.html
+docs/index\.html
+docs/util\.js\.html
+data/*.zip
+archive.tar*
+
+dist/

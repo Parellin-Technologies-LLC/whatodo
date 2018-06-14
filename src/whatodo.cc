@@ -247,6 +247,7 @@ Object init( Env env, Object exports ) {
 	exports.Set( String::New( env, "name" ), "whatodo" );
 	exports.Set( String::New( env, "initialize" ), Function::New( env, initialize ) );
 	exports.Set( String::New( env, "searchFile" ), Function::New( env, searchFile ) );
+	exports.Set( String::New( env, "removeTodo" ), Function::New( env, removeTodo ) );
 
 	_TODO_PATTERN     = String::New( env, "\\/\\/ ?TODO:?:?:? ?" );
 	_EMPTY_STRING     = String::New( env, "" );

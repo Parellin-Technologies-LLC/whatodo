@@ -109,7 +109,7 @@ class Whatodo
 		);
 	}
 	
-	searchFile( file, opts = {} ) {
+	searchFile( file, opts = { todoPattern: this.todoPattern } ) {
 		return Whatodo.searchFile( file, opts );
 	}
 	
