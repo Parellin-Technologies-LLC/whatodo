@@ -83,7 +83,7 @@ describe( 'whatodo - tests', () => {
 	);
 	
 	it( 'searchFile should capture TODO comments',
-		async () => {
+		async() => {
 			const output = await todos.searchFile( testFile );
 			
 			expect( output ).to.be.an( 'object' );
@@ -98,7 +98,7 @@ describe( 'whatodo - tests', () => {
 	);
 	
 	it( 'searchFile RegEx Pattern override should capture TEST comments',
-		async () => {
+		async() => {
 			const output = await todos.searchFile( testFile, { todoPattern: '\\/\\/ ?TEST:?:?:? ?' } );
 			
 			expect( output ).to.be.an( 'object' );
@@ -182,7 +182,7 @@ describe( 'whatodo - tests', () => {
 	
 	it( 'should report error if incorrect format is used',
 		() => expect( spawnCLI( 'node', './cli.js', './', '-f', 'JSONS' ) )
-			.to.eventually.have.string( 'not a supported output' )
+			.to.eventually.have.string( 'not a supported output format' )
 	);
 	
 	it( 'should report todos in STDOUT format with REGEX "\\/\\/ ?TEST:?:?:? ?"',
@@ -190,9 +190,9 @@ describe( 'whatodo - tests', () => {
 			spawnCLI( 'node', './cli.js', '-i', './test/test.cc', '-f', 'STDOUT', '-p', '\\/\\/ ?TEST:?:?:? ?' )
 		)
 			.to.eventually.have
-			.string( '[low]  line: 4 - test low priority' )
-			.and.string( '[mid]  line: 5 - test mid priority' )
-			.and.string( '[high] line: 6 - test high priority' )
+			.string( 'line: 4 - test low priority' )
+			.and.string( 'line: 5 - test mid priority' )
+			.and.string( 'line: 6 - test high priority' )
 	);
 	
 	it( 'should report todos in JSON format',

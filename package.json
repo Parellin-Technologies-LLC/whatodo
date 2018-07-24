@@ -13,7 +13,7 @@
 		"pretest": "npm run build",
 		"preversion": "npm run lint && npm run docs",
 		"start": "node cli.js ./",
-		"test": "mocha",
+		"test": "mocha --trace-warnings",
 		"test-napi": "node --napi-modules ./test/binding.test.js"
 	},
 	"bin": {

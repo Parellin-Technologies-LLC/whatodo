@@ -54,7 +54,7 @@ function reportError( e ) {
 	report += tendl;
 	report += `${ dtab }${ ( e.stackTrace || e.stack || e ).split( '\\n' ).join( '\\n    ' ) }${ endl }`;
 	
-	console.error( report );
+	console.log( report );
 	process.exit( 1 );
 }
 
