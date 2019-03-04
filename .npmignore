@@ -1,13 +1,4 @@
-test/
-docs/
-.idea
 .git
+.idea
 .editorconfig
-.eslintignore
 .eslintrc
-.gitignore
-.jshintrc
-.npmrc
-CHANGELOG
-todo.png
-TODOS.json

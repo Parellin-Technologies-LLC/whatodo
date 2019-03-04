@@ -1,5 +1,19 @@
-geoserverData/
-docs/xterrainlogo.png
+# node-pre-gyp
+*.csv
+*.dat
+*.gz
+results
+lib/binding
+*.tgz
+
+# awsmobilejs
+appsync-info.json
+aws-info.json
+project-info.json
+aws-exports.*
+awsmobilejs/.awsmobile/backend-build
+awsmobilejs/\#current-backend-info
+~awsmobilejs-*/
 
 # code coverage
 coverage
@@ -13,6 +27,7 @@ clover.xml
 .tags
 .tags1
 *.ss*
+.config
 
 # Node logs
 npm-debug.log*
@@ -47,6 +62,7 @@ jspm_packages
 # Yeoman/bow/&c.
 bower_components/
 build/
+dist/
 
 # Linux ignores
 *~
@@ -419,12 +435,6 @@ BundleArtifacts/
 Package.StoreAssociation.xml
 _pkginfo.txt
 
-# Visual Studio cache files
-# files ending in .cache can be ignored
-*.[Cc]ache
-# but keep track of directories ending in .cache
-!*.[Cc]ache/
-
 # Others
 ClientBin/
 ~$*
@@ -490,13 +500,9 @@ paket-files/
 
 # JetBrains Rider
 *.sln.iml
+*.iml
 
-docs/generateRandom\.js\.html
-docs/global\.html
-docs/hmacHash\.js\.html
-docs/index\.html
-docs/util\.js\.html
-data/*.zip
-archive.tar*
-
-dist/
+# Parcel cache
+.cache
+.cache/
+ui_old/
