@@ -1,4 +1,11 @@
 .git
 .idea
 .editorconfig
-.eslintrc
+.eslint*
+CHANGELOG
+NOTES
+test-napi.js
+TodoObject.json
+TODOS.json
+docs/*
+test/*
